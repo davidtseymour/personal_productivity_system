@@ -1,0 +1,5 @@
+/.env
+/data/
+/excel_loader/
+/.ipynb_checkpoints/
+.idea/
