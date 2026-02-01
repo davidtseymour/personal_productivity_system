@@ -3,7 +3,7 @@ from dash import dcc, html
 
 from src.data_access.db import get_category_id_to_name
 from src.helpers.general import get_category_layout
-from src.logic.pages.view_trends import get_task_summary_data, plot_cat_from_store, plot_ts
+from src.logic.pages.patterns_trends import get_task_summary_data, plot_cat_from_store, plot_ts
 
 
 def create_trends_page(user_id):
