@@ -116,7 +116,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                                             type="text",
                                             autoComplete="off",
                                             style={"width": "55px", "textAlign": "right"},
-                                            value=values["duration_hours"],
+                                            value="", #Intentionally blank for edit
                                         ),
                                         dbc.InputGroupText("h"),
                                     ],
@@ -129,7 +129,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                                             type="text",
                                             autoComplete="off",
                                             style={"width": "55px", "textAlign": "right"},
-                                            value=values["duration_minutes"],
+                                            value="", #Intentionally blank for edit
                                         ),
                                         dbc.InputGroupText("m"),
                                     ],
@@ -179,6 +179,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                             value=values["subcategory"],
                         ),
                         # NOTE: datalist needs a plain string id so the 'list' attribute works correctly
+                        # Todo: Update datalist based on db
                         html.Datalist(
                             id="subcategory-suggestions",
                             children=[],
