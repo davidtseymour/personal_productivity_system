@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import html
 
-from src.logic.weekly_summary import df_to_weekly_html_table
+from src.logic.pages.weekly_summary import df_to_weekly_html_table
 from src.data_access.db import (
     load_weekly_summary_minutes_by_day,
     load_weekly_summary_table_dailies,
