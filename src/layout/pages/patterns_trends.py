@@ -50,7 +50,7 @@ def create_trends_page(user_id):
                                 dbc.Col(dbc.Label("Category", className="mb-0"), width="auto"),
                                 dbc.Col(
                                     dbc.Select(
-                                        id="subcategory-dropdown",
+                                        id="category-dropdown",
                                         options=get_category_layout(user_id, include_all_option=True),
                                         value="all",
                                     )
