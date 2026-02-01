@@ -2,7 +2,7 @@ import pandas as pd
 from dash import html
 import dash_bootstrap_components as dbc
 
-def render_weekly_summary_table(
+def df_to_weekly_html_table(
     df: pd.DataFrame,
     daily_metrics: pd.DataFrame,
     fmt_minutes_fn,          # e.g. fmt_h_m (minutes -> "1h 26m")
@@ -22,8 +22,7 @@ def render_weekly_summary_table(
     if df is None or df.empty:
         return html.Small("No data available.", className="text-muted")
 
-    if excluded_rows is None:
-        excluded_rows = ["Screen", "Sleep"]
+    excluded_rows = excluded_rows or ["Screen", "Sleep"]
 
     # --- Split top/bottom blocks ---
     df_top = df.drop(index=excluded_rows, errors="ignore")
@@ -32,7 +31,9 @@ def render_weekly_summary_table(
     df_bottom = df.reindex(excluded_rows).dropna(how="all")
 
     # Daily metrics block (safe)
-    df_metrics = daily_metrics.copy() if isinstance(daily_metrics, pd.DataFrame) else pd.DataFrame()
+    df_metrics = daily_metrics.copy() if daily_metrics is not None else pd.DataFrame()
+    if df_metrics is None:
+        df_metrics = pd.DataFrame()
 
     # --- Align columns (dates) across all blocks, preserve df_top column order ---
     date_cols = list(df_top.columns)
