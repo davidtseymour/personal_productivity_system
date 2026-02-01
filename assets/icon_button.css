@@ -1,0 +1,68 @@
+.btn-icon {
+  padding: 0.25rem;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.btn-icon.btn-outline-secondary {
+  border-color: transparent;
+}
+
+.btn-icon:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon:focus-visible {
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+}
+
+/* Force icon-only buttons to stay neutral across states */
+button.btn.icon-action-btn,
+button.btn.icon-action-btn:hover,
+button.btn.icon-action-btn:focus,
+button.btn.icon-action-btn:focus-visible,
+button.btn.icon-action-btn:active,
+button.btn.icon-action-btn.active {
+  color: var(--bs-secondary-color) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Circular hit target + hover/press halo */
+button.btn.icon-action-btn {
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  border-radius: 42% !important;
+}
+
+button.btn.icon-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+button.btn.icon-action-btn:focus-visible {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+button.btn.icon-action-btn:active {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Hide actions by default */
+.task-row .row-action {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+}
+
+/* Show on hover OR keyboard focus */
+.task-row:hover .row-action,
+.task-row:focus-within .row-action {
+  opacity: 1;
+  pointer-events: auto;
+}

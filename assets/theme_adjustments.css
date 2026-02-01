@@ -1,0 +1,35 @@
+/* Match placeholder color between Dash Core and Bootstrap components */
+
+/* General placeholder color */
+::placeholder {
+    color: #b3b3b3 !important;  /* same as dcc.Dropdown lighter gray */
+    opacity: 1; /* ensures consistent appearance */
+}
+
+/* Specifically target dbc.Input (Bootstrap input fields) */
+input::placeholder,
+textarea::placeholder {
+    color: #b3b3b3 !important;
+}
+
+/* Target dcc.Dropdown placeholder text (React Select) */
+.Select-placeholder {
+    color: #b3b3b3 !important;
+}
+
+/* Hide validation icons from dbc components */
+.was-validated .form-control:invalid,
+.form-control.is-invalid,
+.was-validated .form-control:valid,
+.form-control.is-valid {
+    background-image: none !important;
+    padding-right: 0.75rem !important;
+}
+
+/* assets/custom.css */
+
+/* Orange outline for warnings without invalid state */
+input.warning {
+  border-color: orange !important;
+  box-shadow: 0 0 0 0.2rem rgba(255,165,0,0.25) !important;
+}

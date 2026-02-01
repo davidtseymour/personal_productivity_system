@@ -1,0 +1,5 @@
+/* Scoped drop-up behavior for sidebar user selector */
+.sidebar-dropup .Select-menu-outer {
+    top: auto !important;
+    bottom: 100% !important;
+}
