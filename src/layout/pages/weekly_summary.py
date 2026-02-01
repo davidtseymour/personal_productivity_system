@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import html
 
-from src.callbacks.weekly_summary import df_to_weekly_html_table
+from src.logic.weekly_summary import render_weekly_summary_table
 from src.data_access.db import (
     load_weekly_summary_minutes_by_day,
     load_weekly_summary_table_dailies,
@@ -52,7 +52,7 @@ def create_weekly_summary_page(user_id):
     return dbc.Container(
         [
             dbc.Row(dbc.Col(html.H5("Weekly Summary"), className="mb-2")),
-            df_to_weekly_html_table(
+            render_weekly_summary_table(
                 task_summary,
                 daily_summary,
                 fmt_hh_mm,
