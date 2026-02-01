@@ -3,3 +3,6 @@
 /excel_loader/
 /.ipynb_checkpoints/
 .idea/
+
+# temporary dev-only db inspection script
+src/data_access/db_info_tools.py
