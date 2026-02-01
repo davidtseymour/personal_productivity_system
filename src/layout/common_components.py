@@ -81,3 +81,22 @@ def labeled_control_row(
         ),
         width=col_width,
     )
+
+
+import plotly.graph_objects as go
+
+def empty_fig(message="No productive time logged today."):
+    fig = go.Figure()
+    fig.add_annotation(
+        text=message,
+        x=0.0, y=0.98,
+        xref="paper", yref="paper",
+        showarrow=False,
+    )
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+    return fig
