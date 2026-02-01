@@ -14,6 +14,10 @@ TOASTS = {
     # DELETE TIME
     "TIME_ENTRY_DELETED": {"status": "info", "msg": "Deleted entry."},
 
+    # GOALS
+    "GOAL_THEME_ADDED": {'msg':'Goal theme added','status':'success'},
+    "GOAL_THEME_EXISTS":{'msg':'Goal theme already exists','status':'info'},
+
     # GENERAL
     "VALIDATION_ERROR": {"status": "danger", "msg": "Validation error"},
     "TIME_CONSISTENCY_ERROR": {"status": "danger", "msg": "Time Consistency Error"},
