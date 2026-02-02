@@ -1,8 +1,40 @@
-/.env
 /data/
 /excel_loader/
-/.ipynb_checkpoints/
+/src/data_editing/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# PyCharm / IDE
 .idea/
 
-# temporary dev-only db inspection script
-/src/data_editing/
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Data / local artifacts (adjust as needed)
+*.db
+*.sqlite
+*.sqlite3
+*.parquet
+*.csv
+*.log
+
+# OS / tooling
+*.swp
+*~
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
