@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from src.data_access.db import load_task_base_for_daily_summary, load_metrics_base_for_daily_summary, \
-    get_category_id_to_name
+    load_category_id_to_name
 from src.helpers.general import fmt_h_m
 from src.layout.common_components import empty_fig
 
@@ -98,7 +98,7 @@ def get_today_subcategory_df(user_id):
     daily_summary = load_metrics_base_for_daily_summary(user_id)
 
     # category_dict: {"19": "School", "20": "Activities", ...}
-    category_dict = get_category_id_to_name(user_id)
+    category_dict = load_category_id_to_name(user_id)
     cat_map = {str(k): v for k, v in category_dict.items()}
 
     # Normalize types

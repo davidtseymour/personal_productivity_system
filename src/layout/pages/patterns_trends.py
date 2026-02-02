@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from src.data_access.db import get_category_id_to_name
+from src.data_access.db import load_category_id_to_name
 from src.helpers.general import get_category_layout
 from src.logic.pages.patterns_trends import get_task_summary_data, plot_cat_from_store, plot_ts
 
@@ -9,7 +9,7 @@ from src.logic.pages.patterns_trends import get_task_summary_data, plot_cat_from
 def create_trends_page(user_id):
     # NOTE: These data fetches/figures are computed at layout creation time.
     # If load time becomes an issue, move into callbacks and/or cache results.
-    category_dict = get_category_id_to_name(user_id)
+    category_dict = load_category_id_to_name(user_id)
     task_summary_agg, category_ts = get_task_summary_data(user_id)
 
     fig_ts = plot_ts(category_ts, category_dict)
