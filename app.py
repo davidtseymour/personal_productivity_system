@@ -5,11 +5,11 @@ from src.layout.layout import create_layout
 from src.config.helpers import create_config_dic
 
 from src.callbacks.layout import register_layout_callbacks
-from src.callbacks.log_time import register_log_time_callbacks
-from src.callbacks.daily_metrics import register_daily_metrics_callbacks
-from src.callbacks.goals import register_goals_callbacks
-from src.callbacks.daily_review import register_daily_review_callbacks
-from src.callbacks.patterns_trends import register_trends_callbacks
+from src.callbacks.pages.log_time import register_log_time_callbacks
+from src.callbacks.pages.daily_metrics import register_daily_metrics_callbacks
+from src.callbacks.pages.goals import register_goals_callbacks
+from src.callbacks.pages.daily_review import register_daily_review_callbacks
+from src.callbacks.pages.patterns_trends import register_trends_callbacks
 from src.callbacks.overlays import register_overlays_callbacks
 from src.callbacks.navigation import register_navigation_callbacks
 
