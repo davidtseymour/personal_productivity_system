@@ -3,6 +3,7 @@ from dash.exceptions import PreventUpdate
 
 from src.data_access.db import get_daily_metrics_for_date, update_daily_metrics
 from src.helpers.general import minutes_to_hmm
+from src.helpers.update_events import build_update_event
 from src.layout.toasts import toast, update_toast
 
 DURATION_KEYS = {"sleep_minutes", "screen_minutes"}
@@ -125,6 +126,7 @@ def register_daily_metrics_callbacks(app):
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "is_open"),
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "children"),
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "icon"),
+        Output("last-update", "data"),
         Input({"page": "daily-metrics", "name": "save-metrics", "type": "button"}, "n_clicks"),
         State({"page": "daily-metrics", "name": "date", "type": "date-input"}, "value"),
         State({"page": "daily-metrics", "name": ALL, "type": "input"}, "value"),
@@ -181,4 +183,10 @@ def register_daily_metrics_callbacks(app):
         update_daily_metrics(records)
 
         # Optional: return n_clicks unchanged; using button n_clicks output is a cheap no-op output.
-        return update_toast(toast('METRICS_SAVED'))
+        update_event = build_update_event(
+            event_type="update",
+            entity="daily_metrics",
+            user_id=uuid,
+            date=selected_date,
+        )
+        return *update_toast(toast("METRICS_SAVED")), update_event

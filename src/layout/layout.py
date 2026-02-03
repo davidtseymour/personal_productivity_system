@@ -13,6 +13,7 @@ def create_layout() -> dbc.Container:
             dcc.Store(id="log-task-inputs", data={}),
             dcc.Store(id="date-range-store", data="btn-1"),  # TODO: ensure consistent naming
             dcc.Store(id="task-nav-update-store", data={}),
+            dcc.Store(id="last-update", data={}),
             # NOTE: This triggers a DB call at layout creation time.
             # Consider setting this via a callback on first load.
             dcc.Store(id="user-id", data=get_first_user_id()),

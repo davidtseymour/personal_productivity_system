@@ -6,6 +6,7 @@ from dash.exceptions import PreventUpdate
 
 from src.data_access.db import insert_task
 from src.helpers.general import is_valid_date, determine_missing_times, get_category_from_id, get_category_id_list
+from src.helpers.update_events import build_update_event
 from src.layout.toasts import toast, update_toast, hide_toast
 from src.logic.pages.log_time import validate_task_fields
 
@@ -45,7 +46,8 @@ def register_log_time_callbacks(app):
             Output({"page": page, "group": group, "name": "task-subcategory", "type": "input"}, "value"),
             Output({"page": page, "group": group, "name": "task-activity", "type": "input"}, "value"),
             Output({"page": page, "group": group, "name": "task-notes", "type": "textarea"}, "value"),
-            Output('task-nav-update-store','data')
+            Output("task-nav-update-store", "data"),
+            Output("last-update", "data"),
         ],
         [
             Input({"page": page, "name": "save-task", "type": "button"}, "n_clicks"),
@@ -101,6 +103,7 @@ def register_log_time_callbacks(app):
         # Default toast values
         toast_type = "LOG_TIME_SAVED"
         toast_return = update_toast(toast(toast_type))
+        update_event = no_update
 
         if source_name == "save-task":
 
@@ -152,7 +155,7 @@ def register_log_time_callbacks(app):
 
                 display_t = toast(toast_type)
 
-                return *update_toast(display_t), *(no_update,) * 10, no_update
+                return *update_toast(display_t), *(no_update,) * 10, no_update, no_update
 
             category = get_category_from_id(user_id, category_id_int)
 
@@ -171,6 +174,12 @@ def register_log_time_callbacks(app):
             }
 
             insert_task(row_dict)
+            update_event = build_update_event(
+                event_type="create",
+                entity="task",
+                user_id=user_id,
+                date=row_dict["date"].isoformat(),
+            )
 
 
         elif source_name == "clear-task":
@@ -194,7 +203,7 @@ def register_log_time_callbacks(app):
             "",  # notes
         )
 
-        return (*toast_return, *cleared_values,'data_changed')
+        return (*toast_return, *cleared_values, "data_changed", update_event)
 
     # ---------- Validation callback ----------
     @app.callback(
@@ -227,4 +236,3 @@ def register_log_time_callbacks(app):
 
     def check_valid_times(start_date, start_time, end_date, end_time, hours, minutes):
         return validate_task_fields(start_date, start_time, end_date, end_time, hours, minutes, include_placeholders=True)
-
