@@ -13,7 +13,7 @@ It’s designed around a simple idea: keep the UI fast, keep the data model expl
 ## Current status
 - Core app and UI are in place.
 - The repository is intentionally **sanitized** (no personal data, no credentials).
-- Database initialization / bootstrap scripts may be excluded or incomplete in the public version.
+- Database initialization is currently excluded in the public version.
 
 ## Tech stack
 - Python
@@ -58,6 +58,3 @@ Create a `.env` file (not committed) with:
 python app.py
 ```
 
-## Notes
-- `.env` and local data artifacts are ignored via `.gitignore`.
-- This is a personal productivity project; the UI and schema are evolving.
