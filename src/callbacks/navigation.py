@@ -6,6 +6,7 @@ from dash.exceptions import PreventUpdate
 
 from src.callbacks.overlays import populate_edit_task_modal
 from src.data_access.db import delete_task_sql, load_task_db, update_task
+from src.helpers.update_events import build_update_event
 from src.helpers.task_adapters import task_row_to_form_initial
 from src.layout.navigation import render_today_summary_table
 from src.layout.toasts import toast, update_toast, hide_toast
@@ -90,9 +91,10 @@ def register_navigation_callbacks(app):
         Output("card-recent-tasks", "style"),
         Input("update-summary-tasks", "n_clicks"),
         Input("task-nav-update-store", "data"),
+        Input("last-update", "data"),
         Input("user-id", "data"),
     )
-    def update_today_summary(n_clicks_update, nav_version,user_id):
+    def update_today_summary(n_clicks_update, nav_version, last_update, user_id):
         if not user_id:
             raise PreventUpdate
 
@@ -113,6 +115,7 @@ def register_navigation_callbacks(app):
         Output("edit-task-modal", "is_open"),
         Output("edit-task-form", "children"),
         Output("edit-task-id", "data"),
+        Output("last-update", "data"),
         [
             Input({"page": "nav", "type": "edit-task", "task_id": ALL}, "n_clicks"),
             Input({"page": "edit-modal", "name": "cancel", "type": "button"}, "n_clicks"),
@@ -125,7 +128,7 @@ def register_navigation_callbacks(app):
         ],
         prevent_initial_call=True,
     )
-    def handle_edit_task(n_clicks, n_cancel, n_save, edit_task_inputs, edit_task_id,user_id):
+    def handle_edit_task(n_clicks, n_cancel, n_save, edit_task_inputs, edit_task_id, user_id):
         triggered_id = ctx.triggered_id
         if triggered_id is None:
             raise PreventUpdate
@@ -141,26 +144,32 @@ def register_navigation_callbacks(app):
             initial = task_row_to_form_initial(task_db)
             edit_task_layout = populate_edit_task_modal(user_id,initial)
 
-            return *hide_toast(), True, edit_task_layout, task_id
+            return *hide_toast(), True, edit_task_layout, task_id, no_update
 
         # Cancel
         if isinstance(triggered_id, dict) and triggered_id.get("name") == "cancel":
-            return *hide_toast(), False, [], None
+            return *hide_toast(), False, [], None, no_update
 
         # Save
         if isinstance(triggered_id, dict) and triggered_id.get("name") == "save-task":
             if not edit_task_inputs:
                 # draft/validation store missing; keep modal open
                 validation_error_t = toast("VALIDATION_ERROR")
-                return *update_toast(validation_error_t), no_update, no_update, no_update
+                return *update_toast(validation_error_t), no_update, no_update, no_update, no_update
 
             if edit_task_inputs.get("ready_to_save") and edit_task_id is not None:
-                update_task(edit_task_id, edit_task_inputs.get("entries"),user_id)
+                update_task(edit_task_id, edit_task_inputs.get("entries"), user_id)
                 updated_t = toast("TIME_UPDATED")
-                return *update_toast(updated_t), False, [], None
+                update_event = build_update_event(
+                    event_type="update",
+                    entity="task",
+                    user_id=user_id,
+                    details={"task_id": edit_task_id},
+                )
+                return *update_toast(updated_t), False, [], None, update_event
 
             validation_error_t = toast("VALIDATION_ERROR")
-            return *update_toast(validation_error_t), no_update, no_update, no_update
+            return *update_toast(validation_error_t), no_update, no_update, no_update, no_update
 
         raise PreventUpdate
 
@@ -172,6 +181,7 @@ def register_navigation_callbacks(app):
 
         Output("delete-confirm-modal", "is_open"),
         Output("pending-delete-task-id", "data"),
+        Output("last-update", "data"),
         [
             Input({"page": "nav", "type": "delete-task", "task_id": ALL}, "n_clicks"),
             Input("confirm-delete", "n_clicks"),
@@ -192,11 +202,11 @@ def register_navigation_callbacks(app):
                 raise PreventUpdate
 
             task_id = triggered["task_id"]
-            return *hide_toast(), True, task_id
+            return *hide_toast(), True, task_id, no_update
 
         # 2) Cancel clicked -> close modal, keep pending id (or clear it)
         if triggered == "cancel-delete":
-            return *hide_toast(), False, pending_task_id  # or: (False, None) to clear
+            return *hide_toast(), False, pending_task_id, no_update  # or: (False, None) to clear
 
         # 3) Confirm clicked -> delete, close modal, clear pending id
         if triggered == "confirm-delete":
@@ -204,7 +214,12 @@ def register_navigation_callbacks(app):
                 raise PreventUpdate
             delete_task_sql(pending_task_id)
             t = toast("TIME_ENTRY_DELETED")
-            return *update_toast(t), False, None
+            update_event = build_update_event(
+                event_type="delete",
+                entity="task",
+                details={"task_id": pending_task_id},
+            )
+            return *update_toast(t), False, None, update_event
 
         raise PreventUpdate
 
