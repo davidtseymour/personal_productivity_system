@@ -18,11 +18,20 @@
   - likely via a "task history" page
 
 - Ensure data updates refresh the relevant components
-  - every write produces an update event (date/type/time) stored in dcc.Store("last-update") or DB
-  - refresh only what the current view needs:
-    - analytics figures/tables
-    - sidebar summaries
-    - daily metrics display
-    - views showing edited/deleted items
+  - Include the event date (and any other minimal context) in the update signal
+  - Refresh analytics pages when an edit/delete affects the active date range
+  - Don’t do full refreshes—only update what the current view depends on:
+    - analytics figures/tables 
+    - sidebar summaries 
+    - daily metrics display 
+    - any views that include the edited/deleted items
 
 - Bring other todos into this file as valuable
+
+### Specific Pages
+**Log Time**
+- Logic for having list of frequent subcategories and activities
+  - The subcategories suggestions should be based on previous activities
+- Implement convert to dictionary as passthrough
+  - Improves code generalizability and improvement
+- Refactor log time and edit time to make sure they maintain consistency
