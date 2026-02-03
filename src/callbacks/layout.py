@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from dash import Input, Output, html
 import dash_bootstrap_components as dbc
 
@@ -45,3 +47,17 @@ def register_layout_callbacks(app):
             html.H4("404: Page not found"),
             className="p-4",
         )
+
+    @app.callback(
+        Output("last-update", "data"),
+        [
+            Input("last-update-edit", "data"),
+            Input("last-update-delete", "data"),
+            Input("last-update-log-time", "data"),
+            Input("last-update-daily-metrics", "data"),
+        ],
+        prevent_initial_call=True,
+    )
+    def bump_master_refresh(*_):
+        # always change -> guarantees downstream refresh triggers
+        return datetime.now().isoformat()

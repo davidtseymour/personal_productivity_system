@@ -47,7 +47,7 @@ def register_log_time_callbacks(app):
             Output({"page": page, "group": group, "name": "task-activity", "type": "input"}, "value"),
             Output({"page": page, "group": group, "name": "task-notes", "type": "textarea"}, "value"),
             Output("task-nav-update-store", "data"),
-            Output("last-update", "data"),
+            Output("last-update-log-time", "data"),
         ],
         [
             Input({"page": page, "name": "save-task", "type": "button"}, "n_clicks"),

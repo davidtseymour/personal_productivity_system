@@ -115,7 +115,7 @@ def register_navigation_callbacks(app):
         Output("edit-task-modal", "is_open"),
         Output("edit-task-form", "children"),
         Output("edit-task-id", "data"),
-        Output("last-update", "data"),
+        Output("last-update-edit", "data"),
         [
             Input({"page": "nav", "type": "edit-task", "task_id": ALL}, "n_clicks"),
             Input({"page": "edit-modal", "name": "cancel", "type": "button"}, "n_clicks"),
@@ -181,7 +181,7 @@ def register_navigation_callbacks(app):
 
         Output("delete-confirm-modal", "is_open"),
         Output("pending-delete-task-id", "data"),
-        Output("last-update", "data"),
+        Output("last-update-delete", "data"),
         [
             Input({"page": "nav", "type": "delete-task", "task_id": ALL}, "n_clicks"),
             Input("confirm-delete", "n_clicks"),

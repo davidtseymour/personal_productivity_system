@@ -126,7 +126,7 @@ def register_daily_metrics_callbacks(app):
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "is_open"),
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "children"),
         Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "icon"),
-        Output("last-update", "data"),
+        Output("last-update-daily-metrics", "data"),
         Input({"page": "daily-metrics", "name": "save-metrics", "type": "button"}, "n_clicks"),
         State({"page": "daily-metrics", "name": "date", "type": "date-input"}, "value"),
         State({"page": "daily-metrics", "name": ALL, "type": "input"}, "value"),
