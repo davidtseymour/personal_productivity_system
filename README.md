@@ -61,6 +61,3 @@ python app.py
 ## Notes
 - `.env` and local data artifacts are ignored via `.gitignore`.
 - This is a personal productivity project; the UI and schema are evolving.
-
-## License
-Add a license if/when you want this to be reusable by others.
