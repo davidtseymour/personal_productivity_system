@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 
 from src.layout.pages.log_time import create_task_form
 from src.layout.pages.daily_metrics import create_daily_metrics
-from src.layout.pages.daily_reflection import create_daily_review
+from src.layout.pages.daily_reflection import create_daily_reflection
 from src.layout.pages.goals import create_goals
 
 from src.layout.pages.daily_summary import create_daily_summary_page
@@ -26,7 +26,7 @@ def register_layout_callbacks(app):
         if pathname == "/daily_metrics":
             return html.Div(create_daily_metrics())  # pass user_id if needed
         if pathname == "/daily_reflection":
-            return create_daily_review()
+            return create_daily_reflection()
         if pathname == "/goals":
             return create_goals(user_id)
 

@@ -6,8 +6,8 @@ from dash import html
 from src.layout.common_components import create_toast
 
 
-def create_daily_review() -> dbc.Container:
-    page = "daily-review"
+def create_daily_reflection() -> dbc.Container:
+    page = "daily-reflection"
 
     return dbc.Container(
         [
@@ -52,7 +52,7 @@ def create_daily_review() -> dbc.Container:
                             dbc.Label("Accomplishments"),
                             dbc.Textarea(
                                 id={"page": page, "name": "accomplishments", "type": "textarea"},
-                                placeholder="What did you accomplish today?",
+                                placeholder="Big wins, progress, or anything worth noting today.",
                             ),
                         ],
                         width=8,
@@ -68,7 +68,7 @@ def create_daily_review() -> dbc.Container:
                             dbc.Label("What Worked"),
                             dbc.Textarea(
                                 id={"page": page, "name": "what-worked", "type": "textarea"},
-                                placeholder="What went well?",
+                                placeholder="What helped things go well?",
                             ),
                         ],
                         width=8,
@@ -81,10 +81,10 @@ def create_daily_review() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("What Didn't Work"),
+                            dbc.Label("What Didn’t Work"),
                             dbc.Textarea(
                                 id={"page": page, "name": "what-didnt-work", "type": "textarea"},
-                                placeholder="What didn't go well?",
+                                placeholder="What got in the way or didn’t go as planned?",
                             ),
                         ],
                         width=8,
@@ -97,10 +97,10 @@ def create_daily_review() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("One Thing to Improve"),
+                            dbc.Label("Intentions for Tomorrow"),
                             dbc.Textarea(
-                                id={"page": page, "name": "improve-one-thing", "type": "textarea"},
-                                placeholder="What will you do differently?",
+                                id={"page": page, "name": "intentions-tomorrow", "type": "textarea"},
+                                placeholder="What would make tomorrow feel successful?",
                             ),
                         ],
                         width=8,
@@ -113,7 +113,7 @@ def create_daily_review() -> dbc.Container:
                 [
                     dbc.Col(
                         dbc.Button(
-                            "Submit Review",
+                            "Submit Reflection",
                             id={"page": page, "name": "submit", "type": "button"},
                             className="me-2",
                         ),
@@ -132,8 +132,8 @@ def create_daily_review() -> dbc.Container:
                 ]
             ),
 
-            create_toast(page, "save-review", "Daily Reflection", icon="success"),
-            create_toast(page, "load-review", "Daily Reflection", icon="info"),
+            create_toast(page, "save-reflection", "Daily Reflection", icon="success"),
+            create_toast(page, "load-reflection", "Daily Reflection", icon="info"),
         ],
         fluid=True,
         className="p-0",
