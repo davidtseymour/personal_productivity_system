@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 
 from src.layout.pages.log_time import create_task_form
 from src.layout.pages.daily_metrics import create_daily_metrics
-from src.layout.pages.daily_review import create_daily_review
+from src.layout.pages.daily_reflection import create_daily_review
 from src.layout.pages.goals import create_goals
 
 from src.layout.pages.daily_summary import create_daily_summary_page
