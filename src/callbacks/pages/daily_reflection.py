@@ -23,7 +23,7 @@ def _read_json(p: Path) -> dict:
         return json.load(f)
 
 
-def register_daily_review_callbacks(app, config):
+def register_daily_reflection_callbacks(app, config):
     reviews_dir = Path(config["daily_review_dir"]).resolve()
 
     @app.callback(
