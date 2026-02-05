@@ -122,34 +122,6 @@ def load_daily_metrics_base_for_view_trend(user_id):
 
 # Weekly summary task tables
 
-def load_weekly_summary_table_tasks(user_id):
-    engine = load_sql_engine()
-
-    today = date.today()
-    start_date = today - timedelta(days=7)  # last 7 completed days start
-    end_date = today                        # exclude today
-
-    sql = text("""
-        SELECT
-            date,
-            category,
-            SUM(duration_min) AS total_minutes
-        FROM task_data
-        WHERE date >= :start_date
-          AND date <  :end_date
-          AND user_id = :user_id
-        GROUP BY date, category
-        ORDER BY date, category
-    """)
-
-    df = pd.read_sql(
-        sql,
-        engine,
-        params={"user_id": user_id, "start_date": start_date, "end_date": end_date},
-    )
-    return df
-
-
 def load_weekly_summary_table_dailies(user_id):
     engine = load_sql_engine()
     today = date.today()
@@ -221,74 +193,6 @@ def load_metrics_base_for_daily_summary(user_id):
     return pd.read_sql(sql, engine, params={"user_id": user_id,"today":today})
 
 
-def load_today_summary_with_activity(user_id):
-    engine = load_sql_engine()
-    today = date.today()
-
-    # 1) Task minutes by category
-    sql_tasks = text("""
-        SELECT
-            category,
-            SUM(duration_min)::float AS minutes
-        FROM task_data
-        WHERE date = :today
-          AND user_id = :user_id
-        GROUP BY category;
-    """)
-    df = pd.read_sql(sql_tasks, engine, params={"today": today, "user_id": user_id})
-
-    # Normalize categories (optional but helps avoid whitespace issues)
-    if not df.empty:
-        df["category"] = df["category"].astype(str).str.strip()
-
-    # 2) Load today's steps + screen_minutes
-    sql_metrics = text("""
-        SELECT metric_key, value_num
-        FROM daily_metric_values
-        WHERE date = :today
-          AND user_id = :user_id
-          AND metric_key IN ('steps', 'screen_minutes');
-    """)
-    df_m = pd.read_sql(sql_metrics, engine, params={"today": today, "user_id": user_id})
-    metrics = {r["metric_key"]: r["value_num"] for _, r in df_m.iterrows()}
-
-    steps = metrics.get("steps")
-    screen_minutes = metrics.get("screen_minutes")
-
-    # Convert steps -> minutes (your rule)
-    exercise_minutes = (steps / 100.0) if steps is not None else 0.0
-    screen_add = float(screen_minutes) if screen_minutes is not None else 0.0
-
-    # 3) Ensure categories exist, then add
-    def add_minutes(category_name: str, add_val: float):
-        nonlocal df
-        if add_val <= 0:
-            return
-
-        if df.empty:
-            df = pd.DataFrame([{"category": category_name, "minutes": add_val}])
-            return
-
-        mask = df["category"] == category_name
-        if mask.any():
-            df.loc[mask, "minutes"] = df.loc[mask, "minutes"] + add_val
-        else:
-            df = pd.concat(
-                [df, pd.DataFrame([{"category": category_name, "minutes": add_val}])],
-                ignore_index=True,
-            )
-
-    add_minutes("Exercise", float(exercise_minutes))
-    add_minutes("Screen", float(screen_add))
-
-    # 4) Re-aggregate just in case and sort
-    if not df.empty:
-        df = df.groupby("category", as_index=False)["minutes"].sum()
-        df = df.sort_values("minutes", ascending=False).reset_index(drop=True)
-
-    return df
-
-
 def load_recent_task_data(user_id, n=5):
     engine = load_sql_engine()
     query = text("""
@@ -316,11 +220,11 @@ def insert_task(row_dict):
         conn.execute(
             text("""
                 INSERT INTO task_data (
-                    date, category, subcategory, activity,
+                    date, subcategory, activity,
                     start_at, end_at, duration_min, notes, user_id, category_id
                 )
                 VALUES (
-                    :date, :category, :subcategory, :activity,
+                    :date, :subcategory, :activity,
                     :start_at, :end_at, :duration_min, :notes, :user_id, :category_id
                 )
             """),
@@ -329,14 +233,12 @@ def insert_task(row_dict):
 
 def update_task(task_id: int, row_dict: dict, user_id:str):
     engine = load_sql_engine()
-    row_dict['category'] = get_category_from_id(user_id, row_dict['category_id'])
     with engine.begin() as conn:
         conn.execute(
             text("""
                 UPDATE task_data
                 SET
                     date = :date,
-                    category = :category,
                     category_id = :category_id,
                     subcategory = :subcategory,
                     activity = :activity,
@@ -362,7 +264,6 @@ def load_task_db(task_id: int) -> dict:
                 SELECT
                     task_id,
                     date,
-                    category,
                     category_id,
                     subcategory,
                     activity,

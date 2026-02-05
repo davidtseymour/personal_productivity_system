@@ -10,7 +10,6 @@ def task_row_to_form_initial(row: dict) -> dict:
         "end_time": end_at.strftime("%H:%M"),
         "duration_hours": str(duration_min // 60),
         "duration_minutes": f"{duration_min % 60:02d}",
-        "category": row["category"],
         "category_id": row["category_id"],
         "subcategory": row.get("subcategory") or "",
         "activity": row.get("activity") or "",
