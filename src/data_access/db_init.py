@@ -1,12 +1,127 @@
-import pandas as pd
+
 from sqlalchemy import text
 from src.data_access.db import load_sql_engine, get_user_id, update_metric_definition  # or get_engine
+
+# *************** MAIN STRUCTURE ***************
+
+# ----- Users-----
+def create_users_table(engine):
+
+    statements = [
+        """CREATE EXTENSION IF NOT EXISTS pgcrypto;""",
+        """
+                    CREATE TABLE IF NOT EXISTS users (
+                      user_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                      username     TEXT NOT NULL UNIQUE,
+                      display_name TEXT NOT NULL,
+                      is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+                      created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    );
+                """
+    ]
+
+    with engine.begin() as conn:
+        for stmt in statements:
+            conn.execute(text(stmt))
+
+# ----- User Categories -----
+def create_user_categories(engine) -> None:
+    statements: list[str] = [
+        """
+        CREATE TABLE IF NOT EXISTS user_categories (
+          category_id   BIGSERIAL PRIMARY KEY,
+          user_id       UUID NOT NULL REFERENCES users(user_id),
+          category_name TEXT NOT NULL,
+
+          is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+          sort_order    INT NOT NULL DEFAULT 0,
+
+          created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+          CONSTRAINT user_categories_name_nonempty CHECK (btrim(category_name) <> '')
+        );
+        """,
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_user_categories_user_lowername
+        ON user_categories (user_id, lower(btrim(category_name)));
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS ix_user_categories_user_active_sort
+        ON user_categories (user_id, is_active, sort_order, category_name);
+        """,
+    ]
+
+    with engine.begin() as conn:
+        for stmt in statements:
+            conn.execute(text(stmt))
+
+
+# *************** Tasks ***************
+
+# ----- task_data ------
+def create_task_data_table(engine) -> None:
+    stmts = [
+        """
+        CREATE TABLE IF NOT EXISTS task_data (
+            task_id BIGSERIAL PRIMARY KEY,
+
+            user_id UUID NOT NULL REFERENCES users(user_id),
+
+            date DATE,
+            start_at TIMESTAMP WITHOUT TIME ZONE,
+            end_at TIMESTAMP WITHOUT TIME ZONE,
+            duration_min BIGINT,
+
+            category_id BIGINT NOT NULL REFERENCES user_categories(category_id),
+
+            subcategory TEXT,
+            activity TEXT,
+            notes TEXT,
+
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+            CONSTRAINT chk_task_time_order
+                CHECK (
+                    start_at IS NULL
+                    OR end_at IS NULL
+                    OR end_at > start_at
+                )
+        );
+        """,
+        """
+            CREATE INDEX IF NOT EXISTS idx_task_data_user_date
+            ON task_data (user_id, date);
+        """,
+        """
+            CREATE INDEX IF NOT EXISTS idx_task_data_user_start_desc
+            ON task_data (user_id, start_at DESC);
+        """,
+        """
+            CREATE INDEX IF NOT EXISTS idx_task_data_user_category_date
+            ON task_data (user_id, category_id, date);
+        """,
+    ]
+
+    with engine.begin() as conn:
+        for stmt in stmts:
+            conn.execute(text(stmt))
+
+
+# *************** Daily Metrics ***************
+
+# ----- metric_definitions -----
+
+# ----- daily_metric_values -----
+
+
 
 # *************** GOALS ***************
 
 # ----- GOAL THEMES -----
 def create_goal_themes_table(engine) -> None:
-    stmts = [
+    statements = [
         """
         CREATE TABLE IF NOT EXISTS goal_themes (
             goal_theme_id BIGSERIAL PRIMARY KEY,
@@ -29,12 +144,13 @@ def create_goal_themes_table(engine) -> None:
     ]
 
     with engine.begin() as conn:
-        for stmt in stmts:
+        for stmt in statements:
             conn.execute(text(stmt))
+
 
 # ----- GOAL SETS -----
 def create_goal_sets_table(engine) -> None:
-    stmts = [
+    statements = [
         # Enum for horizon (idempotent)
         """
         DO $$
@@ -58,12 +174,12 @@ def create_goal_sets_table(engine) -> None:
         CREATE UNIQUE INDEX IF NOT EXISTS ux_goal_sets_user_period
         ON goal_sets (user_id, horizon, period_start);
         """,
-
     ]
 
     with engine.begin() as conn:
-        for stmt in stmts:
+        for stmt in statements:
             conn.execute(text(stmt))
+
 
 # ----- GOAL SET ITEMS (item-level revisions) -----
 def create_goal_set_items_table(engine) -> None:
@@ -97,6 +213,7 @@ def create_goal_set_items_table(engine) -> None:
     with engine.begin() as conn:
         for stmt in stmts:
             conn.execute(text(stmt))
+
 
 # *************** DAILY REFLECTION ***************
 
@@ -134,6 +251,10 @@ def create_daily_reflections_table(engine):
 
 def init_db():
     engine = load_sql_engine()
+
+    # Main Structure
+    create_users_table(engine)
+    create_user_categories(engine)
 
     # Goals
     create_goal_themes_table(engine)
