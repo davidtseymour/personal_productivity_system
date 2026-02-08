@@ -112,6 +112,54 @@ def create_task_data_table(engine) -> None:
 
 # ----- metric_definitions -----
 
+from sqlalchemy import text
+
+
+def create_metric_definitions_table(engine) -> None:
+    stmts = [
+        """
+        CREATE TABLE IF NOT EXISTS metric_definitions (
+
+            user_id UUID NOT NULL REFERENCES users(user_id),
+            metric_key TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            unit TEXT NOT NULL,
+            value_type TEXT NOT NULL,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            is_duration BOOLEAN NOT NULL DEFAULT FALSE,
+            category_id BIGINT NULL
+                REFERENCES user_categories(category_id),
+            subcategory TEXT NULL,
+            activity TEXT NULL,
+            to_minutes_factor DOUBLE PRECISION NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+            CONSTRAINT metric_definitions_pkey
+                PRIMARY KEY (user_id, metric_key),
+
+            CONSTRAINT to_minutes_factor_positive
+                CHECK (to_minutes_factor IS NULL OR to_minutes_factor >= 0),
+
+            CONSTRAINT subcategory_requires_category
+                CHECK (subcategory IS NULL OR category_id IS NOT NULL),
+
+            CONSTRAINT activity_requires_subcategory
+                CHECK (activity IS NULL OR subcategory IS NOT NULL),
+
+            CONSTRAINT ck_metric_defs_ignore_when_category_null
+                CHECK (
+                    category_id IS NOT NULL
+                    OR (subcategory IS NULL AND activity IS NULL)
+                )
+        );
+        """,
+    ]
+
+    with engine.begin() as conn:
+        for stmt in stmts:
+            conn.execute(text(stmt))
+
+
 # ----- daily_metric_values -----
 
 
