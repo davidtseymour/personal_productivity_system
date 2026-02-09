@@ -1,5 +1,5 @@
 from sqlalchemy import text
-from src.data_access.db import load_sql_engine, get_user_id, update_metric_definition  # or get_engine
+from src.data_access.db import load_sql_engine
 
 # *************** MAIN STRUCTURE ***************
 
@@ -112,7 +112,6 @@ def create_task_data_table(engine) -> None:
 
 # ----- metric_definitions -----
 
-from sqlalchemy import text
 
 
 def create_metric_definitions_table(engine) -> None:
