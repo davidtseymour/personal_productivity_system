@@ -162,7 +162,37 @@ def create_metric_definitions_table(engine) -> None:
 
 # ----- daily_metric_values -----
 
+def create_daily_metric_values_table(engine) -> None:
+    stmts = [
+        """
+        CREATE TABLE IF NOT EXISTS daily_metric_values (
+            user_id    UUID NOT NULL
+                REFERENCES users(user_id),
 
+            date       DATE NOT NULL,
+            metric_key TEXT NOT NULL,
+
+            value_num  DOUBLE PRECISION NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+            CONSTRAINT daily_metric_values_pkey
+                PRIMARY KEY (user_id, date, metric_key),
+
+            -- FK to metric definitions (composite, since metric_definitions PK is (user_id, metric_key))
+            CONSTRAINT fk_daily_metric_values_metric_def
+                FOREIGN KEY (user_id, metric_key)
+                REFERENCES metric_definitions(user_id, metric_key)
+        );
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS idx_daily_metric_values_user_day
+        ON daily_metric_values (user_id, date);
+        """
+    ]
+
+    with engine.begin() as conn:
+        for stmt in stmts:
+            conn.execute(text(stmt))
 
 # *************** GOALS ***************
 
