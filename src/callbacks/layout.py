@@ -24,7 +24,7 @@ def register_layout_callbacks(app):
         if pathname in ("/", "/log_time"): # default log_time
             return create_task_form(user_id)
         if pathname == "/daily_metrics":
-            return html.Div(create_daily_metrics())  # pass user_id if needed
+            return html.Div(create_daily_metrics(user_id))  # pass user_id if needed
         if pathname == "/daily_reflection":
             return create_daily_reflection()
         if pathname == "/goals":

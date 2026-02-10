@@ -303,6 +303,24 @@ def update_daily_metrics(records):
     with engine.begin() as conn:
         conn.execute(text(UPSERT_SQL), records)
 
+def get_daily_metrics_definitions(user_id):
+    sql = """
+        SELECT metric_key, display_name, is_duration
+        FROM metric_definitions
+        WHERE user_id = :user_id
+        ORDER BY sort_order, display_name
+    """
+    engine = load_sql_engine()
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(sql),
+            {
+                "user_id": user_id,
+            },
+        ).mappings().fetchall()
+
+    return rows
+
 def get_daily_metrics_for_date(metric_date, user_id):
     sql = """
     SELECT
