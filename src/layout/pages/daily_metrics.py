@@ -3,11 +3,12 @@ from datetime import date
 import dash_bootstrap_components as dbc
 from dash import html
 
+from src.data_access.db import get_daily_metrics_definitions
 from src.layout.common_components import create_toast, labeled_control_row
+from src.logic.pages.daily_metric import metric_placeholder, normalize_metric_definitions
 
 
-def create_daily_metrics() -> dbc.Form:
-    # TODO: Edit layout to get it from database
+def create_daily_metrics(user_id) -> dbc.Form:
     # - determine whether layout should be different for different users (probably yes)
 
     page = "daily-metrics"
@@ -22,17 +23,25 @@ def create_daily_metrics() -> dbc.Form:
             debounce=True,
         )
 
+    metrics_list = get_daily_metrics_definitions(user_id)
+    norm_metric_list = normalize_metric_definitions(metrics_list)
+
     rows = [
-        ("Sleep time", input_("sleep_minutes", "150 or 2:30")),
-        ("Sleep score", input_("sleep_score", "78")),
-        ("Steps", input_("steps", "12000")),
-        ("RHR", input_("rhr", "58")),
-        ("Stress", input_("stress", "35")),
-        ("Phone screen", input_("screen_minutes", "190 or 3:10")),
+        (
+            m["display_name"],
+            input_(m["metric_key"], metric_placeholder(m["is_duration"])),
+        )
+        for m in norm_metric_list
     ]
 
     # Label width (140px) + input width (140px) + gap (~8px)
     date_input_width_px = 288
+    if len(rows) == 0:
+        return dbc.Form(
+            [
+                html.H5("Daily Metrics"),
+                html.Small("No active metrics.", className="text-muted")
+            ])
 
     return dbc.Form(
         [
