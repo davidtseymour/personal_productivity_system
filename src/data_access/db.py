@@ -352,21 +352,6 @@ def get_user_id(username: str):
         ).scalar_one())
 
 
-def add_user_db(username: str, display_name: str):
-    engine = load_sql_engine()
-
-    with engine.begin() as conn:
-        conn.execute(
-            text("""
-                 INSERT INTO users (username, display_name)
-                 VALUES (:username, :display_name) ON CONFLICT (username) DO
-                 UPDATE SET
-                     display_name = EXCLUDED.display_name,
-                     is_active = TRUE;
-                 """),
-            {"username": username, "display_name": display_name},
-        )
-
 def get_users():
     engine = load_sql_engine()
 
@@ -384,51 +369,6 @@ def get_users():
         ).mappings().fetchall()
 
     return {str(row["user_id"]): row["display_name"] for row in rows}
-
-
-
-CLEAR = object() # todo: future import this to clear a field
-
-def update_metric_definition(
-    metric_key,
-    category=None,
-    subcategory=None,
-    activity=None,
-    to_minutes_factor=None,
-):
-    engine = load_sql_engine()
-
-    fields = {
-        "category": category,
-        "subcategory": subcategory,
-        "activity": activity,
-        "to_minutes_factor": to_minutes_factor,
-    }
-
-    set_clauses = []
-    params = {"metric_key": metric_key}
-
-    for col, val in fields.items():
-        if val is CLEAR:
-            set_clauses.append(f"{col} = NULL")
-        elif val is not None:
-            set_clauses.append(f"{col} = :{col}")
-            params[col] = val
-        # else: val is None → do nothing
-
-    if not set_clauses:
-        return  # nothing to update
-
-    sql = text(f"""
-        UPDATE metric_definitions
-        SET {", ".join(set_clauses)}
-        WHERE metric_key = :metric_key
-    """)
-
-    with engine.begin() as conn:
-        conn.execute(sql, params)
-
-
 
 def get_first_user_id():
     users = get_users()
