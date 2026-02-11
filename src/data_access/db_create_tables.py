@@ -332,10 +332,17 @@ def init_db():
     create_users_table(engine)
     create_user_categories(engine)
 
+    # Tasks
+    create_task_data_table(engine)
+
+    # Daily Metrics
+    create_metric_definitions_table(engine)
+    create_daily_metric_values_table(engine)
+
     # Goals
     create_goal_themes_table(engine)
     create_goal_sets_table(engine)
-    create_goal_sets_table(engine)
+    create_goal_set_items_table(engine)
 
     # Daily reflections
     create_daily_reflections_table(engine)
