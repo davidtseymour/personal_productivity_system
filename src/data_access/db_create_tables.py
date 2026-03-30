@@ -112,8 +112,6 @@ def create_task_data_table(engine) -> None:
 
 # ----- metric_definitions -----
 
-
-
 def create_metric_definitions_table(engine) -> None:
     stmts = [
         """

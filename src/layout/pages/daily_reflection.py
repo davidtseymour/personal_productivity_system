@@ -30,7 +30,7 @@ def create_daily_reflection() -> dbc.Container:
 
                     dbc.Col(
                         [
-                            dbc.Label("Intentionality Score (1–10)"),
+                            dbc.Label("Intentionality score (1–10)"),
                             dbc.Input(
                                 id={"page": page, "name": "intentionality-score", "type": "input"},
                                 type="number",
@@ -65,7 +65,7 @@ def create_daily_reflection() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("What Worked"),
+                            dbc.Label("What worked"),
                             dbc.Textarea(
                                 id={"page": page, "name": "what-worked", "type": "textarea"},
                                 placeholder="What helped things go well?",
@@ -81,7 +81,7 @@ def create_daily_reflection() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("What Didn’t Work"),
+                            dbc.Label("What didn’t work"),
                             dbc.Textarea(
                                 id={"page": page, "name": "what-didnt-work", "type": "textarea"},
                                 placeholder="What got in the way or didn’t go as planned?",
@@ -97,7 +97,7 @@ def create_daily_reflection() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("Intentions for Tomorrow"),
+                            dbc.Label("Intentions for tomorrow"),
                             dbc.Textarea(
                                 id={"page": page, "name": "intentions-tomorrow", "type": "textarea"},
                                 placeholder="What would make tomorrow feel successful?",
