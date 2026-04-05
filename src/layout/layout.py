@@ -3,7 +3,7 @@ from dash import dcc, html
 
 from src.data_access.db import get_first_user_id
 from src.layout.navigation import create_left_navigation, create_right_sidebar
-from src.layout.overlays import generate_delete_modal, generate_edit_task_offcanvas
+from src.layout.overlays import generate_delete_modal, generate_edit_task_offcanvas, generate_edit_settings_offcanvas
 
 
 def create_layout() -> dbc.Container:
@@ -27,6 +27,7 @@ def create_layout() -> dbc.Container:
 
             generate_delete_modal(),
             generate_edit_task_offcanvas(),
+            generate_edit_settings_offcanvas(),
             dcc.Location(id="url"),
 
             dbc.Row(

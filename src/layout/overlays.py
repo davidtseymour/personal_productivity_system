@@ -67,3 +67,43 @@ def generate_edit_task_offcanvas():
             ),
         ]
     )
+
+
+def generate_edit_settings_offcanvas():
+    page = "settings-modal"
+
+    return html.Div(
+        [
+            create_toast(page, "settings-update", "Edit Task", icon="success"),
+            dbc.Modal(
+                [
+                    dbc.ModalBody(
+                        [
+                            html.Div(id="settings-modal-form"),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Cancel",
+                                        id={"page": page, "name": "cancel", "type": "button"},
+                                        color="secondary",
+                                        className="me-2",
+                                    ),
+                                    dbc.Button(
+                                        "Save",
+                                        id={"page": page, "name": "save-task", "type": "button"},
+                                        color="primary",
+                                    ),
+                                ],
+                                className="d-flex justify-content-end",
+                            ),
+                        ]
+                    ),
+                ],
+                id="edit-setting-modal",
+                is_open=False,
+                size="xl",
+                scrollable=True,
+                centered=True,
+            ),
+        ]
+    )
