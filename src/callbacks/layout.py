@@ -9,6 +9,7 @@ from src.layout.pages.daily_reflection import create_daily_reflection
 from src.layout.pages.goals import create_goals
 
 from src.layout.pages.daily_summary import create_daily_summary_page
+from src.layout.pages.settings import create_settings_page
 from src.layout.pages.weekly_summary import create_weekly_summary_page
 from src.layout.pages.patterns_trends import create_trends_page
 
@@ -40,7 +41,7 @@ def register_layout_callbacks(app):
 
         # Settings
         if pathname == "/settings":
-            return html.H2("Placeholder")
+            return create_settings_page(user_id)
 
         #Page not found
         return dbc.Container(

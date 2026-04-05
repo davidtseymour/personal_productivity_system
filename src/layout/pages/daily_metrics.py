@@ -75,7 +75,6 @@ def create_daily_metrics(user_id) -> dbc.Form:
                 )
                 for label, control in rows
             ],
-            
             dbc.Button(
                 "Save Metrics",
                 id={"page": page, "name": "save-metrics", "type": "button"},
