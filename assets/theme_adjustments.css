@@ -33,3 +33,8 @@ input.warning {
   border-color: orange !important;
   box-shadow: 0 0 0 0.2rem rgba(255,165,0,0.25) !important;
 }
+
+/* Wider settings modal for metric table editing */
+#edit-setting-modal .modal-dialog {
+    max-width: min(96vw, 1600px);
+}

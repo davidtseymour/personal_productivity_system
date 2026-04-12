@@ -75,6 +75,12 @@ def generate_edit_settings_offcanvas():
     return html.Div(
         [
             create_toast(page, "settings-update", "Edit Task", icon="success"),
+            dcc.Store(id="settings-modal-mode"),
+            dcc.Store(id="settings-categories-drafts", data=[]),
+            dcc.Store(id="settings-categories-edits", data={}),
+            dcc.Store(id="settings-metrics-drafts", data=[]),
+            dcc.Store(id="settings-metrics-edits", data={}),
+            dcc.Store(id="settings-metrics-order", data=[]),
             dbc.Modal(
                 [
                     dbc.ModalBody(
