@@ -20,6 +20,7 @@ def create_layout() -> dbc.Container:
             dcc.Store(id="last-update-delete", data={}),
             dcc.Store(id="last-update-log-time", data={}),
             dcc.Store(id="last-update-daily-metrics", data={}),
+            dcc.Store(id="daily-metrics-specs", data={}),
 
             # NOTE: This triggers a DB call at layout creation time.
             # Consider setting this via a callback on first load.

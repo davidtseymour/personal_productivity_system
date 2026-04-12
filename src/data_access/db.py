@@ -303,9 +303,36 @@ def update_daily_metrics(records):
     with engine.begin() as conn:
         conn.execute(text(UPSERT_SQL), records)
 
+
+def delete_daily_metrics_for_keys(user_id, metric_date, metric_keys):
+    """
+    Deletes daily_metric_values rows for the given user/date/metric key set.
+    """
+    keys = [str(k) for k in (metric_keys or []) if k not in (None, "")]
+    if not keys:
+        return
+
+    engine = load_sql_engine()
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                """
+                DELETE FROM daily_metric_values
+                WHERE user_id = :user_id
+                  AND date = :metric_date
+                  AND metric_key = ANY(:metric_keys)
+                """
+            ),
+            {
+                "user_id": user_id,
+                "metric_date": metric_date,
+                "metric_keys": keys,
+            },
+        )
+
 def get_daily_metrics_definitions(user_id):
     sql = """
-        SELECT metric_key, display_name, is_duration
+        SELECT metric_key, display_name, is_duration, value_type, unit
         FROM metric_definitions
         WHERE user_id = :user_id
         ORDER BY sort_order, display_name
