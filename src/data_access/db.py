@@ -153,9 +153,9 @@ def load_weekly_summary_table_dailies(user_id):
 
 # New functions
 
-def load_task_base_for_daily_summary(user_id):
+def load_task_base_for_daily_summary(user_id, summary_date=None):
     engine = load_sql_engine()
-    today = date.today()
+    summary_date = summary_date or date.today()
     sql = text("""
         SELECT
             category_id,
@@ -163,17 +163,17 @@ def load_task_base_for_daily_summary(user_id):
             SUM(duration_min) AS total_minutes
         FROM task_data
         WHERE user_id = :user_id
-          AND date = :today
+          AND date = :summary_date
           AND subcategory IS NOT NULL
           AND category_id IS NOT NULL
         GROUP BY category_id, subcategory
         ORDER BY category_id, subcategory
     """)
-    return pd.read_sql(sql, engine, params={"user_id": user_id, "today": today})
+    return pd.read_sql(sql, engine, params={"user_id": user_id, "summary_date": summary_date})
 
-def load_metrics_base_for_daily_summary(user_id):
+def load_metrics_base_for_daily_summary(user_id, summary_date=None):
     engine = load_sql_engine()
-    today = date.today()
+    summary_date = summary_date or date.today()
     sql = text("""
                SELECT md.category_id,
                       md.subcategory,
@@ -183,14 +183,14 @@ def load_metrics_base_for_daily_summary(user_id):
                              ON dmv.metric_key = md.metric_key
                                  AND md.user_id = dmv.user_id
                WHERE dmv.user_id = :user_id
-                 AND dmv.date = :today
+                 AND dmv.date = :summary_date
                  AND md.subcategory IS NOT NULL
                  AND md.to_minutes_factor IS NOT NULL
                  AND md.category_id IS NOT NULL
                GROUP BY md.category_id, md.subcategory
                ORDER BY md.category_id, md.subcategory
                """)
-    return pd.read_sql(sql, engine, params={"user_id": user_id,"today":today})
+    return pd.read_sql(sql, engine, params={"user_id": user_id, "summary_date": summary_date})
 
 
 def load_recent_task_data(user_id, n=5):

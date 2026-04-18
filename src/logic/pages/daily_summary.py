@@ -3,6 +3,7 @@ import numpy as np
 from dash import html
 import pandas as pd
 import plotly.graph_objects as go
+from datetime import date
 
 from src.data_access.db import load_task_base_for_daily_summary, load_metrics_base_for_daily_summary, \
     load_category_id_to_name
@@ -93,9 +94,9 @@ def df_to_daily_html_table(df, fmt_minutes_fn, highlight_rows=None):
     )
 
 
-def get_today_subcategory_df(user_id):
-    task_summary = load_task_base_for_daily_summary(user_id)
-    daily_summary = load_metrics_base_for_daily_summary(user_id)
+def get_subcategory_df_for_date(user_id, summary_date):
+    task_summary = load_task_base_for_daily_summary(user_id, summary_date=summary_date)
+    daily_summary = load_metrics_base_for_daily_summary(user_id, summary_date=summary_date)
 
     # category_dict: {"19": "School", "20": "Activities", ...}
     category_dict = load_category_id_to_name(user_id)
@@ -126,6 +127,10 @@ def get_today_subcategory_df(user_id):
     )
 
     return combined
+
+
+def get_today_subcategory_df(user_id):
+    return get_subcategory_df_for_date(user_id, date.today())
 
 
 def make_stacked_subcategory_fig(df):

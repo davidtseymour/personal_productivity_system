@@ -1,10 +1,13 @@
+from datetime import date
+
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from src.helpers.general import fmt_h_m
+from src.layout.common_components import labeled_control_row
 from src.logic.pages.daily_summary import (
     df_to_daily_html_table,
-    get_today_subcategory_df,
+    get_subcategory_df_for_date,
     make_stacked_subcategory_fig,
 )
 
@@ -12,11 +15,27 @@ from src.logic.pages.daily_summary import (
 def create_daily_summary_page(user_id: str) -> dbc.Container:
     """Create the daily summary page for a given user."""
     page = "daily-summary"
-    combined = get_today_subcategory_df(user_id)
+    selected_date = date.today().isoformat()
+    combined = get_subcategory_df_for_date(user_id, selected_date)
 
     return dbc.Container(
         [
             dbc.Row(dbc.Col(html.H5("Daily Summary"))),
+            dbc.Row(
+                [
+                    labeled_control_row(
+                        "Date",
+                        dbc.Input(
+                            id={"page": page, "name": "date", "type": "date-input"},
+                            type="date",
+                            value=selected_date,
+                        ),
+                        col_width=6,
+                        label_px=110,
+                    ),
+                ],
+                className="mb-2",
+            ),
             dbc.Row(
                 [
                     dbc.Col(
