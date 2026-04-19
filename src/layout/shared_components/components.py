@@ -50,3 +50,68 @@ def date_controlled_row(page, selected_date, className: str = "mb-3"):
             className=className,
         )
     )
+
+
+def date_cycler_row(
+    page: str,
+    selected_date: str,
+    *,
+    prev_name: str,
+    next_name: str,
+    prev_tooltip: str,
+    next_tooltip: str,
+) -> dbc.Row:
+    return dbc.Row(
+        [
+            date_controlled_row(page, selected_date, className="mb-0"),
+            dbc.Col(
+                [
+                    dbc.Button(
+                        html.I(className="bi bi-chevron-left", style={"fontSize": "1.2rem"}),
+                        id={"page": page, "name": prev_name, "type": "button"},
+                        color="light",
+                        size="sm",
+                        className="rounded-circle me-2",
+                        style={
+                            "width": "32px",
+                            "height": "32px",
+                            "padding": "0",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                        },
+                        n_clicks=0,
+                    ),
+                    dbc.Button(
+                        html.I(className="bi bi-chevron-right", style={"fontSize": "1.2rem"}),
+                        id={"page": page, "name": next_name, "type": "button"},
+                        color="light",
+                        size="sm",
+                        className="rounded-circle",
+                        style={
+                            "width": "32px",
+                            "height": "32px",
+                            "padding": "0",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                        },
+                        n_clicks=0,
+                    ),
+                    dbc.Tooltip(
+                        prev_tooltip,
+                        target={"page": page, "name": prev_name, "type": "button"},
+                        placement="top",
+                    ),
+                    dbc.Tooltip(
+                        next_tooltip,
+                        target={"page": page, "name": next_name, "type": "button"},
+                        placement="top",
+                    ),
+                ],
+                width="auto",
+                className="d-flex align-items-center",
+            ),
+        ],
+        className="g-2 align-items-center mb-2",
+    )
