@@ -122,11 +122,10 @@ def load_daily_metrics_base_for_view_trend(user_id):
 
 # Weekly summary task tables
 
-def load_weekly_summary_table_dailies(user_id):
+def load_weekly_summary_table_dailies(user_id, selected_start_date=None, days: int = 7):
     engine = load_sql_engine()
-    today = date.today()
-    start_date = today - timedelta(days=7)
-    end_date = today
+    start_date = selected_start_date or (date.today() - timedelta(days=7))
+    end_date = start_date + timedelta(days=days)
 
     sql = text("""
         SELECT 
@@ -463,9 +462,9 @@ def load_today_summary_minutes(user_id: str, selected_date):
     return pd.read_sql(sql, engine, params={"user_id": user_id, "selected_date": selected_date})
 
 
-def load_weekly_summary_minutes_by_day(user_id: str, selected_date=None, days: int = 7):
-    end_date = selected_date or date.today()
-    start_date = end_date - timedelta(days=days)
+def load_weekly_summary_minutes_by_day(user_id: str, selected_start_date=None, days: int = 7):
+    start_date = selected_start_date or (date.today() - timedelta(days=7))
+    end_date = start_date + timedelta(days=days)
 
     engine = load_sql_engine()
     sql = text("""

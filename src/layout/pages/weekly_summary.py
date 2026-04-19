@@ -21,8 +21,12 @@ def _normalize_date_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_weekly_summary_page(user_id):
+    page = "weekly-summary"
+    selected_date = (date.today() - timedelta(days=7)).isoformat()
+    selected_start_date = date.fromisoformat(selected_date)
+
     # --- Tasks ---
-    task_query = load_weekly_summary_minutes_by_day(user_id)
+    task_query = load_weekly_summary_minutes_by_day(user_id, selected_start_date=selected_start_date)
     task_summary = (
         task_query.pivot_table(
             index="category_name",
@@ -35,7 +39,7 @@ def create_weekly_summary_page(user_id):
     task_summary = _normalize_date_columns(task_summary)
 
     # --- Daily metrics ---
-    daily_query = load_weekly_summary_table_dailies(user_id)
+    daily_query = load_weekly_summary_table_dailies(user_id, selected_start_date=selected_start_date)
     daily_summary = (
         daily_query.pivot_table(
             index="display_name",
@@ -51,25 +55,26 @@ def create_weekly_summary_page(user_id):
     all_dates = sorted(set(task_summary.columns).union(daily_summary.columns))
     task_summary = task_summary.reindex(columns=all_dates, fill_value=0)
     daily_summary = daily_summary.reindex(columns=all_dates, fill_value=0)
-    selected_date = (date.today()- timedelta(days=7)).isoformat()
-
     return dbc.Container(
         [
             dbc.Row(dbc.Col(html.H5("Weekly Summary"), className="mb-2")),
             date_cycler_row(
-                "weekly-summary",
+                page,
                 selected_date,
                 prev_name="prev-week",
                 next_name="next-week",
                 prev_tooltip="Go to previous week",
                 next_tooltip="Go to next week",
             ),
-            df_to_weekly_html_table(
-                task_summary,
-                daily_summary,
-                fmt_hh_mm,
-                fmt_int,
-                highlight_rows={"Screen": {"color": "#b00020"}},
+            html.Div(
+                df_to_weekly_html_table(
+                    task_summary,
+                    daily_summary,
+                    fmt_hh_mm,
+                    fmt_int,
+                    highlight_rows={"Screen": {"color": "#b00020"}},
+                ),
+                id={"page": page, "name": "weekly-table", "type": "table"},
             ),
         ],
         fluid=True,

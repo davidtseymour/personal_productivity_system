@@ -8,6 +8,7 @@ from src.callbacks.layout import register_layout_callbacks
 from src.callbacks.pages.log_time import register_log_time_callbacks
 from src.callbacks.pages.daily_metrics import register_daily_metrics_callbacks
 from src.callbacks.pages.daily_summary import register_daily_summary_callbacks
+from src.callbacks.pages.weekly_summary import register_weekly_summary_callbacks
 from src.callbacks.pages.goals import register_goals_callbacks
 from src.callbacks.pages.daily_reflection import register_daily_reflection_callbacks
 from src.callbacks.pages.patterns_trends import register_trends_callbacks
@@ -35,6 +36,7 @@ register_layout_callbacks(app)
 register_log_time_callbacks(app)
 register_daily_metrics_callbacks(app)
 register_daily_summary_callbacks(app)
+register_weekly_summary_callbacks(app)
 register_daily_reflection_callbacks(app)
 register_goals_callbacks(app)
 register_trends_callbacks(app)
