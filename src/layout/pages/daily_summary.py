@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from src.helpers.general import fmt_h_m
-from src.layout.common_components import labeled_control_row
+from src.layout.shared_components.components import date_controlled_row
 from src.logic.pages.daily_summary import (
     df_to_daily_html_table,
     get_subcategory_df_for_date,
@@ -20,21 +20,60 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
 
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Daily Summary"))),
+            dbc.Row(dbc.Col(html.H5("Daily Summary"), className="mb-2")),
             dbc.Row(
                 [
-                    labeled_control_row(
-                        "Date",
-                        dbc.Input(
-                            id={"page": page, "name": "date", "type": "date-input"},
-                            type="date",
-                            value=selected_date,
-                        ),
-                        col_width=6,
-                        label_px=110,
+                    date_controlled_row(page, selected_date, className="mb-0"),
+                    dbc.Col(
+                        [
+                            dbc.Button(
+                                html.I(className="bi bi-chevron-left", style={"fontSize": "1.2rem"}),
+                                id={"page": page, "name": "prev-day", "type": "button"},
+                                color="light",
+                                size="sm",
+                                className="rounded-circle me-2",
+                                style={
+                                    "width": "32px",
+                                    "height": "32px",
+                                    "padding": "0",
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                },
+                                n_clicks=0,
+                            ),
+                            dbc.Button(
+                                html.I(className="bi bi-chevron-right", style={"fontSize": "1.2rem"}),
+                                id={"page": page, "name": "next-day", "type": "button"},
+                                color="light",
+                                size="sm",
+                                className="rounded-circle",
+                                style={
+                                    "width": "32px",
+                                    "height": "32px",
+                                    "padding": "0",
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                },
+                                n_clicks=0,
+                            ),
+                            dbc.Tooltip(
+                                "Go to previous day",
+                                target={"page": page, "name": "prev-day", "type": "button"},
+                                placement="top",
+                            ),
+                            dbc.Tooltip(
+                                "Go to next day",
+                                target={"page": page, "name": "next-day", "type": "button"},
+                                placement="top",
+                            ),
+                        ],
+                        width="auto",
+                        className="d-flex align-items-center",
                     ),
                 ],
-                className="mb-2",
+                className="g-2 align-items-center mb-2",
             ),
             dbc.Row(
                 [
