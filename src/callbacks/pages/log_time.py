@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
@@ -52,7 +52,7 @@ def register_log_time_callbacks(app):
         [
             Input({"page": page, "name": "save-task", "type": "button"}, "n_clicks"),
             Input({"page": page, "name": "clear-task", "type": "button"}, "n_clicks"),
-            State({"page": page, "group": group, "name": "start-date", "type": "input"}, "value"),
+            Input({"page": page, "group": group, "name": "start-date", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "start-time", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "end-date", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "end-time", "type": "input"}, "value"),
@@ -81,9 +81,6 @@ def register_log_time_callbacks(app):
         notes,
         user_id,
     ):
-        if not (nclicks_save or 0) and not (nclicks_clear or 0):
-            raise PreventUpdate
-
         # Todo: Implement convert to dictionary as passthrough
         # form_values = {'start_date': start_date, 'start_time': start_time, 'end_date': end_date, 'end_time': end_time,
         #               'hours': hours, 'minutes': minutes, 'category_id': category_id, 'subcategory': subcategory,
@@ -99,6 +96,36 @@ def register_log_time_callbacks(app):
             source_name = triggered.get("name")
         else:
             source_name = str(triggered)
+
+        if source_name == "start-date":
+            if not is_valid_date(start_date):
+                raise PreventUpdate
+
+            new_end_date = start_date
+            if start_time and end_time and start_time > end_time:
+                start_day = datetime.strptime(start_date, "%Y-%m-%d")
+                new_end_date = (start_day + timedelta(days=1)).strftime("%Y-%m-%d")
+
+            return (
+                no_update,
+                no_update,
+                no_update,
+                new_end_date,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+            )
+
+        if source_name not in {"save-task", "clear-task"}:
+            raise PreventUpdate
 
         # Default toast values
         toast_type = "LOG_TIME_SAVED"
