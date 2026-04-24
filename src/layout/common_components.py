@@ -1,5 +1,6 @@
 from dash import html
 import dash_bootstrap_components as dbc
+import plotly.graph_objects as go
 
 def create_toast(
     page: str,
@@ -81,9 +82,6 @@ def labeled_control_row(
         ),
         width=col_width,
     )
-
-
-import plotly.graph_objects as go
 
 def empty_fig(message="No productive time logged today."):
     fig = go.Figure()
