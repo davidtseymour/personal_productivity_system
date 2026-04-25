@@ -16,7 +16,7 @@ def create_settings_page(user_id=None) -> html.Div:
 
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Settings", className="mb-2"), width=12)),
+            dbc.Row(dbc.Col(html.H5("Settings"), width=12), className="mb-2"),
             dbc.Row(
                 [
                     dbc.Col(
@@ -363,7 +363,7 @@ def edit_categories_content(user_id, draft_rows=None, edited_rows=None):
     )
 
     return [
-            html.H5("Edit Categories", className="mb-2"),
+            dbc.Row(dbc.Col(html.H5("Edit Categories"), width=12), className="mb-2"),
             dbc.Table(
                 [table_header, table_body],
                 bordered=False,
@@ -1069,7 +1069,7 @@ def edit_metrics_content(user_id, draft_rows=None, edited_rows=None, row_order=N
     )
 
     return [
-            html.H5("Edit Metrics", className="mb-2"),
+            dbc.Row(dbc.Col(html.H5("Edit Metrics"), width=12), className="mb-2"),
             dbc.Table(
                 [table_header, table_body],
                 bordered=False,

@@ -57,7 +57,7 @@ def create_weekly_summary_page(user_id):
     daily_summary = daily_summary.reindex(columns=all_dates, fill_value=0)
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Weekly Summary"), className="mb-2")),
+            dbc.Row(dbc.Col(html.H5("Weekly Summary")), className="mb-2"),
             date_cycler_row(
                 page,
                 selected_date,

@@ -20,7 +20,7 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
 
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Daily Summary"), className="mb-2")),
+            dbc.Row(dbc.Col(html.H5("Daily Summary")), className="mb-2"),
             date_cycler_row(
                 page,
                 selected_date,

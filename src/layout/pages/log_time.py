@@ -219,13 +219,13 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                             id={"page": page, "group": group, "name": "task-notes", "type": "textarea"},
                             placeholder="Add optional notes...",
                             rows=3,
-                            className="mb-3",
                             value=values["notes"],
                         ),
                     ],
                     width=12,
                 ),
-            ]
+            ],
+            className="mb-3",
         ),
     ]
 
@@ -250,17 +250,25 @@ def create_task_form(user_id):
                             ),
 
                             # ---------------------- Buttons ----------------------
-                            dbc.Button(
-                                "Save Task",
-                                id={"page": page, "name": "save-task", "type": "button"},
-                                color="primary",
-                                className="me-2 mb-3",
-                            ),
-                            dbc.Button(
-                                "Clear Task",
-                                id={"page": page, "name": "clear-task", "type": "button"},
-                                color="secondary",
-                                className="me-2 mb-3",
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.Button(
+                                            "Save Task",
+                                            id={"page": page, "name": "save-task", "type": "button"},
+                                            color="primary",
+                                            className="me-2",
+                                        ),
+                                        dbc.Button(
+                                            "Clear Task",
+                                            id={"page": page, "name": "clear-task", "type": "button"},
+                                            color="secondary",
+                                            className="me-2",
+                                        ),
+                                    ],
+                                    width=12,
+                                ),
+                                className="mb-3",
                             ),
 
                             # ---------------------- Toast ----------------------
