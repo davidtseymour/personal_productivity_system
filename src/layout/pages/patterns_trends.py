@@ -33,7 +33,7 @@ def create_trends_page(user_id: str) -> dbc.Container:
                                         dbc.Button("Yesterday", id="btn-1", color="primary", outline=True),
                                         dbc.Button("Last 7 Days", id="btn-7", color="primary", outline=True),
                                         dbc.Button("Last 14 Days", id="btn-14", color="primary", outline=True),
-                                        dbc.Button("Last 30 Days", id="btn-30", color="primary", outline=True),
+                                        dbc.Button("Last 28 Days", id="btn-28", color="primary", outline=True),
                                         dbc.Button("All Time", id="btn-inf", color="primary", outline=True),
                                     ]
                                 ),

@@ -10,7 +10,7 @@ def register_trends_callbacks(app: Dash) -> None:
         Output("productivity-graph", "figure"),
         [
             Input("btn-inf", "n_clicks"),
-            Input("btn-30", "n_clicks"),
+            Input("btn-28", "n_clicks"),
             Input("btn-14", "n_clicks"),
             Input("btn-7", "n_clicks"),
             Input("btn-1", "n_clicks"),
@@ -20,7 +20,7 @@ def register_trends_callbacks(app: Dash) -> None:
             State("trends-category-dict-store", "data"),
         ]
     )
-    def update_productivity_graph(n_inf, n_30, n_14, n_7, n_1, category_id, date_value, task_summary_store, category_dict):
+    def update_productivity_graph(n_inf, n_28, n_14, n_7, n_1, category_id, date_value, task_summary_store, category_dict):
 
 
         # Default day range (if nothing triggered)
@@ -29,7 +29,7 @@ def register_trends_callbacks(app: Dash) -> None:
             "btn-1": 1,
             "btn-7": 7,
             "btn-14": 14,
-            "btn-30": 30,
+            "btn-28": 28,
             "btn-inf": -1,
         }
 
@@ -49,11 +49,11 @@ def register_trends_callbacks(app: Dash) -> None:
         Input("btn-1", "n_clicks"),
         Input("btn-7", "n_clicks"),
         Input("btn-14", "n_clicks"),
-        Input("btn-30", "n_clicks"),
+        Input("btn-28", "n_clicks"),
         Input("btn-inf", "n_clicks"),
         prevent_initial_call=True
     )
-    def update_range(n1, n7, n14, n30, ninf):
+    def update_range(n1, n7, n14, n28, ninf):
         return ctx.triggered_id
 
     @app.callback(
@@ -61,7 +61,7 @@ def register_trends_callbacks(app: Dash) -> None:
             Output("btn-1", "outline"),
             Output("btn-7", "outline"),
             Output("btn-14", "outline"),
-            Output("btn-30", "outline"),
+            Output("btn-28", "outline"),
             Output("btn-inf", "outline"),
         ],
         Input("date-range-store", "data"),
@@ -71,6 +71,6 @@ def register_trends_callbacks(app: Dash) -> None:
             active_id != "btn-1",
             active_id != "btn-7",
             active_id != "btn-14",
-            active_id != "btn-30",
+            active_id != "btn-28",
             active_id != "btn-inf",
         ]
