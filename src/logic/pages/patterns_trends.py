@@ -16,6 +16,7 @@ BUTTON_TO_DAYS = {
     "btn-7": 7,
     "btn-14": 14,
     "btn-28": 28,
+    "btn-365": 365,
     "btn-inf": -1,
 }
 
