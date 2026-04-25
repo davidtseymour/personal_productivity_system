@@ -233,33 +233,39 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
 def create_task_form(user_id):
     page = "log-time"
 
-    return dbc.Form(
+    return dbc.Container(
         [
-            html.H5("Log Time"),
-            dbc.Row(
-                dbc.Col(
-                    [
-                        *create_task_inputs(page, user_id),
-                    ],
-                    width=8,
-                ),
-            ),
+            dbc.Form(
+                [
+                    html.H5("Log Time"),
+                    dbc.Row(
+                        dbc.Col(
+                            [
+                                *create_task_inputs(page, user_id),
+                            ],
+                            width=8,
+                        ),
+                    ),
 
-            # ---------------------- Buttons ----------------------
-            dbc.Button(
-                "Save Task",
-                id={"page": page, "name": "save-task", "type": "button"},
-                color="primary",
-                className="me-2 mb-3",
-            ),
-            dbc.Button(
-                "Clear Task",
-                id={"page": page, "name": "clear-task", "type": "button"},
-                color="secondary",
-                className="me-2 mb-3",
-            ),
+                    # ---------------------- Buttons ----------------------
+                    dbc.Button(
+                        "Save Task",
+                        id={"page": page, "name": "save-task", "type": "button"},
+                        color="primary",
+                        className="me-2 mb-3",
+                    ),
+                    dbc.Button(
+                        "Clear Task",
+                        id={"page": page, "name": "clear-task", "type": "button"},
+                        color="secondary",
+                        className="me-2 mb-3",
+                    ),
 
-            # ---------------------- Toast ----------------------
-            create_toast(page, "save-task", "Log Time", icon="success"),
-        ]
+                    # ---------------------- Toast ----------------------
+                    create_toast(page, "save-task", "Log Time", icon="success"),
+                ]
+            )
+        ],
+        fluid=True,
+        className="p-0",
     )
