@@ -11,7 +11,7 @@ def create_daily_reflection() -> dbc.Container:
 
     return dbc.Container(
         [
-            html.H5("Daily Reflection"),
+            dbc.Row(dbc.Col(html.H5("Daily Reflection"))),
 
             dbc.Row(
                 [

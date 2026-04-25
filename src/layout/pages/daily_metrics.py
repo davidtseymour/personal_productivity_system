@@ -39,13 +39,13 @@ def create_daily_metrics(user_id) -> dbc.Form:
     if len(rows) == 0:
         return dbc.Form(
             [
-                html.H5("Daily Metrics"),
-                html.Small("No active metrics.", className="text-muted")
+                dbc.Row(dbc.Col(html.H5("Daily Metrics"))),
+                dbc.Row(dbc.Col(html.Small("No active metrics.", className="text-muted"))),
             ])
 
     return dbc.Form(
         [
-            html.H5("Daily Metrics"),
+            dbc.Row(dbc.Col(html.H5("Daily Metrics"))),
 
             dbc.Row(
                 [
@@ -75,14 +75,16 @@ def create_daily_metrics(user_id) -> dbc.Form:
                 )
                 for label, control in rows
             ],
-            dbc.Button(
-                "Save Metrics",
-                id={"page": page, "name": "save-metrics", "type": "button"},
-                color="primary",
+            dbc.Row(
+                dbc.Col(
+                    dbc.Button(
+                        "Save Metrics",
+                        id={"page": page, "name": "save-metrics", "type": "button"},
+                        color="primary",
+                    ),
+                    width=12,
+                )
             ),
-
-
-
             create_toast(page, "save-metrics", "Daily Metrics", icon="success"),
         ]
     )

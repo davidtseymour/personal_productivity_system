@@ -16,7 +16,7 @@ def create_settings_page(user_id=None) -> html.Div:
 
     return dbc.Container(
         [
-            html.H5("Settings", className="mb-2"),
+            dbc.Row(dbc.Col(html.H5("Settings", className="mb-2"), width=12)),
             dbc.Row(
                 [
                     dbc.Col(

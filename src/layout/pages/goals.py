@@ -10,10 +10,10 @@ def create_goals(user_id: str) -> dbc.Container:
 
     return dbc.Container(
         [
-            html.H5("Goals"),
+            dcc.Store(id="goals-last-saved-store"),
+            dbc.Row(dbc.Col(html.H5("Goals"), width=12)),
             dbc.Row(
                 [
-                    dcc.Store(id="goals-last-saved-store"),
                     labeled_control_row(
                         "Theme",
                         dcc.Dropdown(

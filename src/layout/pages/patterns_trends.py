@@ -19,11 +19,9 @@ def create_trends_page(user_id):
 
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Patterns & Trends"))),
-
-            # NOTE: dcc.Store is client-side storage (visible in browser DevTools).
             dcc.Store(id="task-summary-store", data=task_summary_agg),
             dcc.Store(id="trends-category-dict-store", data=category_dict),
+            dbc.Row(dbc.Col(html.H5("Patterns & Trends"))),
 
             dbc.Row(
                 [

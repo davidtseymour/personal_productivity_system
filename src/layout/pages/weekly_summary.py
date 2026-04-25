@@ -66,15 +66,20 @@ def create_weekly_summary_page(user_id):
                 prev_tooltip="Go to previous week",
                 next_tooltip="Go to next week",
             ),
-            html.Div(
-                df_to_weekly_html_table(
-                    task_summary,
-                    daily_summary,
-                    fmt_hh_mm,
-                    fmt_int,
-                    highlight_rows={"Screen": {"color": "#b00020"}},
+            dbc.Row(
+                dbc.Col(
+                    html.Div(
+                        df_to_weekly_html_table(
+                            task_summary,
+                            daily_summary,
+                            fmt_hh_mm,
+                            fmt_int,
+                            highlight_rows={"Screen": {"color": "#b00020"}},
+                        ),
+                        id={"page": page, "name": "weekly-table", "type": "table"},
+                    ),
+                    width=12,
                 ),
-                id={"page": page, "name": "weekly-table", "type": "table"},
             ),
         ],
         fluid=True,
