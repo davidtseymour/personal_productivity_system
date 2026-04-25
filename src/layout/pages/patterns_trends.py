@@ -30,37 +30,35 @@ def create_trends_page(user_id: str) -> dbc.Container:
                             html.Div(
                                 dbc.ButtonGroup(
                                     [
-                                        dbc.Button("Yesterday", id="btn-1", color="primary", outline=True),
-                                        dbc.Button("Last 7 Days", id="btn-7", color="primary", outline=True),
-                                        dbc.Button("Last 14 Days", id="btn-14", color="primary", outline=True),
-                                        dbc.Button("Last 28 Days", id="btn-28", color="primary", outline=True),
-                                        dbc.Button("Last Year", id="btn-365", color="primary", outline=True),
-                                        dbc.Button("All Time", id="btn-inf", color="primary", outline=True),
+                                        dbc.Button("Yesterday", id="btn-1", color="primary", outline=True, size="sm"),
+                                        dbc.Button("Last 7 Days", id="btn-7", color="primary", outline=True, size="sm"),
+                                        dbc.Button("Last 14 Days", id="btn-14", color="primary", outline=True, size="sm"),
+                                        dbc.Button("Last 28 Days", id="btn-28", color="primary", outline=True, size="sm"),
+                                        dbc.Button("Last Year", id="btn-365", color="primary", outline=True, size="sm"),
+                                        dbc.Button("All Time", id="btn-inf", color="primary", outline=True, size="sm"),
                                     ]
                                 ),
-                                className="mb-3",
+                                className="d-flex align-items-center",
                             )
                         ],
                         width=6,
                     ),
                     dbc.Col(
-                        dbc.Row(
+                        html.Div(
                             [
-                                dbc.Col(dbc.Label("Category", className="mb-0"), width="auto"),
-                                dbc.Col(
-                                    dbc.Select(
-                                        id="category-dropdown",
-                                        options=get_category_layout(user_id, include_all_option=True),
-                                        value="all",
-                                    )
+                                dbc.Label("Category", className="mb-0"),
+                                dbc.Select(
+                                    id="category-dropdown",
+                                    options=get_category_layout(user_id, include_all_option=True),
+                                    value="all",
                                 ),
                             ],
-                            className="align-items-center",
+                            className="d-flex align-items-center gap-2",
                         ),
                         width=6,
                     ),
                 ],
-                className="mb-3",
+                className="mb-3 align-items-center",
             ),
 
             dbc.Row(
