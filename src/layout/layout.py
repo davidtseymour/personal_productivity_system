@@ -1,5 +1,5 @@
-import dash_bootstrap_components as dbc
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.data_access.db import get_first_user_id
 from src.layout.navigation import create_left_navigation, create_right_sidebar

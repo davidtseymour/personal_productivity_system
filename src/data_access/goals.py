@@ -1,7 +1,9 @@
-from src.data_access.db import load_sql_engine
-from sqlalchemy import text
 from datetime import date
 from typing import Literal
+
+from sqlalchemy import text
+
+from src.data_access.db import load_sql_engine
 
 GoalHorizon = Literal["WEEK", "MONTH", "QTR"]
 
@@ -184,4 +186,3 @@ def save_goal_set_item_text(*, goal_set_id: int, goal_theme_id: int, detail_text
         ).scalar()
 
     return bool(inserted)
-

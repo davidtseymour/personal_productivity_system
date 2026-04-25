@@ -1,15 +1,15 @@
 # callbacks/today_summary.py
 
-import dash_bootstrap_components as dbc
-from dash import html, Input, Output, State, ctx, no_update, ALL
+from dash import ALL, Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dbc
 
 from src.callbacks.overlays import populate_edit_task_modal
 from src.data_access.db import delete_task_sql, load_task_db, update_task
-from src.helpers.update_events import build_update_event
 from src.helpers.task_adapters import task_row_to_form_initial
+from src.helpers.update_events import build_update_event
 from src.layout.navigation import render_today_summary_table
-from src.layout.toasts import toast, update_toast, hide_toast
+from src.layout.toasts import hide_toast, toast, update_toast
 from src.logic.navigation import get_recent_tasks, get_today_summary_payload
 
 

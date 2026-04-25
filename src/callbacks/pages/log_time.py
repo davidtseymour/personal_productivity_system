@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
-import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
+import pandas as pd
 
 from src.data_access.db import insert_task
-from src.helpers.general import is_valid_date, determine_missing_times, get_category_from_id, get_category_id_list
+from src.helpers.general import determine_missing_times, get_category_from_id, get_category_id_list, is_valid_date
 from src.helpers.update_events import build_update_event
-from src.layout.toasts import toast, update_toast, hide_toast
+from src.layout.toasts import hide_toast, toast, update_toast
 from src.logic.pages.log_time import validate_task_fields
 
 def register_log_time_callbacks(app):

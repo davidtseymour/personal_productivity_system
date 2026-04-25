@@ -1,5 +1,5 @@
-import dash_bootstrap_components as dbc
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.data_access.goals import get_goals_themes
 from src.layout.common_components import create_toast, labeled_control_row

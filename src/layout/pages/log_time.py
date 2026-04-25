@@ -1,6 +1,7 @@
-import dash_bootstrap_components as dbc
-from dash import dcc, html
 from datetime import date
+
+from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.helpers.general import get_category_layout
 from src.layout.common_components import create_toast, labeled_control_row

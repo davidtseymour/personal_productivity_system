@@ -1,6 +1,6 @@
-import pandas as pd
 from dash import html
 import dash_bootstrap_components as dbc
+import pandas as pd
 
 def df_to_weekly_html_table(
     df: pd.DataFrame,

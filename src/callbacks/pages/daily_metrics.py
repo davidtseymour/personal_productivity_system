@@ -1,18 +1,17 @@
-from dash import Input, Output, State, ctx, ALL
-from dash.exceptions import PreventUpdate
+import re
 
+from dash import ALL, Input, Output, State, ctx
+from dash.exceptions import PreventUpdate
 from src.data_access.db import (
+    get_daily_metrics_definitions,
     get_daily_metrics_for_date,
-    update_daily_metrics,
     delete_daily_metrics_for_keys,
+    update_daily_metrics,
 )
 from src.helpers.general import minutes_to_hmm
 from src.helpers.update_events import build_update_event
 from src.layout.toasts import toast, update_toast
-from src.data_access.db import get_daily_metrics_definitions
 from src.logic.pages.daily_metric import metric_specs_by_key
-
-import re
 
 _HMM_RE = re.compile(r"^\s*(\d+):([0-5]\d)\s*$")   # h:mm with mm = 00–59
 _NUM_RE = re.compile(r"^\s*\d+(\.\d+)?\s*$")      # integer or float

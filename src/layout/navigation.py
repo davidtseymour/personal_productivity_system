@@ -1,5 +1,5 @@
-import dash_bootstrap_components as dbc
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.data_access.db import get_users
 from src.helpers.general import fmt_h_m

@@ -1,12 +1,16 @@
-import dash_bootstrap_components as dbc
-import numpy as np
-from dash import html
-import pandas as pd
-import plotly.graph_objects as go
 from datetime import date
 
-from src.data_access.db import load_task_base_for_daily_summary, load_metrics_base_for_daily_summary, \
-    load_category_id_to_name
+from dash import html
+import dash_bootstrap_components as dbc
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+
+from src.data_access.db import (
+    load_category_id_to_name,
+    load_metrics_base_for_daily_summary,
+    load_task_base_for_daily_summary,
+)
 from src.helpers.general import fmt_h_m
 from src.layout.common_components import empty_fig
 

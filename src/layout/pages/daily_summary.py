@@ -1,7 +1,7 @@
 from datetime import date
 
-import dash_bootstrap_components as dbc
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.helpers.general import fmt_h_m
 from src.layout.shared_components.components import date_cycler_row

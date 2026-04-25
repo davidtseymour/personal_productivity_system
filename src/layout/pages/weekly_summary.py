@@ -1,16 +1,16 @@
-import dash_bootstrap_components as dbc
-import pandas as pd
-from dash import html
 from datetime import date, timedelta
 
+from dash import html
+import dash_bootstrap_components as dbc
+import pandas as pd
 
-from src.layout.shared_components.components import date_cycler_row
-from src.logic.pages.weekly_summary import df_to_weekly_html_table
 from src.data_access.db import (
     load_weekly_summary_minutes_by_day,
     load_weekly_summary_table_dailies,
 )
 from src.helpers.general import fmt_hh_mm, fmt_int
+from src.layout.shared_components.components import date_cycler_row
+from src.logic.pages.weekly_summary import df_to_weekly_html_table
 
 
 def _normalize_date_columns(df: pd.DataFrame) -> pd.DataFrame:

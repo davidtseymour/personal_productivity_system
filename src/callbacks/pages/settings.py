@@ -1,14 +1,14 @@
 import uuid
 
-from dash import Input, Output, State, ctx, ALL, no_update
+from dash import ALL, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.settings import (
     persist_category_settings_changes,
     persist_metric_settings_changes,
 )
-from src.layout.pages.settings import edit_metrics_content, edit_categories_content
 from src.helpers.general import get_category_layout
+from src.layout.pages.settings import edit_categories_content, edit_metrics_content
 
 
 def _normalize_positive_double(value):

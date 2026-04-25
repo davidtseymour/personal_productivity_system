@@ -1,8 +1,8 @@
-from src.data_access.db import load_recent_task_data, load_today_summary_minutes
-import pandas as pd
 import datetime as dt
 
+import pandas as pd
 
+from src.data_access.db import load_recent_task_data, load_today_summary_minutes
 
 def get_today_summary_payload(user_id) -> dict:
     today = dt.date.today()
@@ -42,4 +42,3 @@ def get_recent_tasks(n=5,user_id=None) ->  pd.DataFrame | None:
     df = load_recent_task_data(user_id,n=n)
 
     return df
-

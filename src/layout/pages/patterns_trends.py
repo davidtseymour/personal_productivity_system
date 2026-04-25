@@ -1,5 +1,5 @@
-import dash_bootstrap_components as dbc
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from src.data_access.db import load_category_id_to_name
 from src.helpers.general import get_category_layout

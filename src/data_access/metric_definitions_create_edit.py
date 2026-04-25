@@ -1,5 +1,6 @@
-from src.data_access.db import load_sql_engine
 from sqlalchemy import text
+
+from src.data_access.db import load_sql_engine
 
 def add_metric_definition(
     *,
@@ -69,7 +70,6 @@ def add_metric_definition(
         conn.execute(query, params)
 
 #Todo: Edit daily metric
-
 
 
 

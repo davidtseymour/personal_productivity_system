@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta
 import math
 
-from datetime import datetime, timedelta
 from src.data_access.db import load_category_list, load_category_id_to_name
 
 # Validating time imports - used in Logging time and editing time

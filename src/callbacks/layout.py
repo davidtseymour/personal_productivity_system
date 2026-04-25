@@ -3,15 +3,14 @@ from datetime import datetime
 from dash import Input, Output, html
 import dash_bootstrap_components as dbc
 
-from src.layout.pages.log_time import create_task_form
 from src.layout.pages.daily_metrics import create_daily_metrics
 from src.layout.pages.daily_reflection import create_daily_reflection
-from src.layout.pages.goals import create_goals
-
 from src.layout.pages.daily_summary import create_daily_summary_page
+from src.layout.pages.goals import create_goals
+from src.layout.pages.log_time import create_task_form
+from src.layout.pages.patterns_trends import create_trends_page
 from src.layout.pages.settings import create_settings_page
 from src.layout.pages.weekly_summary import create_weekly_summary_page
-from src.layout.pages.patterns_trends import create_trends_page
 
 
 def register_layout_callbacks(app):

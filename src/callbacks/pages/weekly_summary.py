@@ -1,8 +1,8 @@
 from datetime import date, timedelta
 
-import pandas as pd
 from dash import Input, Output, State, ctx
 from dash.exceptions import PreventUpdate
+import pandas as pd
 
 from src.data_access.db import (
     load_weekly_summary_minutes_by_day,

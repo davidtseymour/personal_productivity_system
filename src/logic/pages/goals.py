@@ -1,10 +1,10 @@
 from datetime import date, datetime, timedelta
 from typing import Literal
-
-from dateutil.relativedelta import relativedelta
 from zoneinfo import ZoneInfo
 
-from src.data_access.goals import get_goal_set_id, create_and_get_goal_set_id
+from dateutil.relativedelta import relativedelta
+
+from src.data_access.goals import create_and_get_goal_set_id, get_goal_set_id
 
 GoalHorizon = Literal["WEEK", "MONTH", "QTR"]
 

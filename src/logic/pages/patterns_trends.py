@@ -1,12 +1,12 @@
-import pandas as pd
 import datetime as dt
 
+import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from scipy.ndimage import gaussian_filter1d
 
-from src.data_access.db import load_tasks_base_for_view_trend, load_daily_metrics_base_for_view_trend
+from src.data_access.db import load_daily_metrics_base_for_view_trend, load_tasks_base_for_view_trend
 
 # -- HELPERS --
 
