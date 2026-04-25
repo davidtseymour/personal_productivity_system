@@ -20,7 +20,7 @@ def _normalize_date_columns(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def create_weekly_summary_page(user_id):
+def create_weekly_summary_page(user_id: str) -> dbc.Container:
     page = "weekly-summary"
     selected_date = (date.today() - timedelta(days=7)).isoformat()
     selected_start_date = date.fromisoformat(selected_date)

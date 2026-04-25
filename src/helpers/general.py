@@ -1,18 +1,19 @@
 from datetime import datetime, timedelta
 import math
+from typing import Any
 
 from src.data_access.db import load_category_list, load_category_id_to_name
 
 # Validating time imports - used in Logging time and editing time
 
 def validate_time_inputs(
-        start_date,
-        start_time,
-        end_date,
-        end_time,
-        hours,
-        minutes,
-):
+        start_date: str | None,
+        start_time: str | None,
+        end_date: str | None,
+        end_time: str | None,
+        hours: str | None,
+        minutes: str | None,
+) -> tuple[bool, bool, bool, bool, bool, bool]:
     # --- per-field validation ---
     invalid_start_date = False
     invalid_start_time = False
@@ -227,7 +228,7 @@ def is_valid_time(time_str: str) -> bool:
         return False
 
 
-def combine_datetime(date_str: str, time_str: str):
+def combine_datetime(date_str: str | None, time_str: str | None) -> datetime | None:
     """Return a datetime if both parts are valid, else None."""
     if not (is_valid_date(date_str) and is_valid_time(time_str)):
         return None
@@ -252,7 +253,7 @@ def get_category_from_id(user_id: str, category_id: int) -> str | None:
     return id_to_name.get(int(category_id))
 
 
-def get_category_layout(user_id, include_all_option=False):
+def get_category_layout(user_id: str, include_all_option: bool = False) -> list[dict[str, Any]]:
     """
     Load categories from a JSON config file and return them as dropdown options.
 
@@ -274,7 +275,7 @@ def get_category_layout(user_id, include_all_option=False):
 
 # Formatting logic
 
-def minutes_to_hmm(minutes):
+def minutes_to_hmm(minutes: int | float | None) -> str | None:
     if minutes is None:
         return None
     try:
@@ -297,7 +298,7 @@ def fmt_hh_mm(mins: float) -> str:
     return f"{hours}:{mins_left:02d}"
 
 
-def fmt_int(value) -> str:
+def fmt_int(value: Any) -> str:
     if value is None or (isinstance(value, float) and math.isnan(value)):
         return "0"
     return f"{int(round(value)):,}"

@@ -1,3 +1,5 @@
+from typing import Any
+
 TOASTS = {
     # LOG TIME TOASTS
     "LOG_TIME_SAVED": {"status": "success", "message": "Saved entry"},
@@ -26,7 +28,7 @@ TOASTS = {
 }
 
 
-def toast(key: str, **details) -> dict:
+def toast(key: str, **details: Any) -> dict[str, str]:
     """
     Returns a standardized toast dict:
       {"status": <bootstrap-status>, "message": <formatted string>}
@@ -44,11 +46,11 @@ def toast(key: str, **details) -> dict:
     return {"status": status, "message": message}
 
 
-def update_toast(t_dict) -> tuple:
+def update_toast(t_dict: dict[str, str]) -> tuple[bool, str | None, str | None]:
     """Returns (is_open, children, icon)."""
     return True, t_dict.get("message"), t_dict.get("status", "info")
 
 
-def hide_toast() -> tuple:
+def hide_toast() -> tuple[bool, None, None]:
     """Closes the toast."""
     return False, None, None

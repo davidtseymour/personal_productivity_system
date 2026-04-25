@@ -1,17 +1,19 @@
+from typing import Any
+
 from dash import html
 import dash_bootstrap_components as dbc
 
 
 def labeled_fixed_width_control_row(
     label_text: str,
-    control_component,
+    control_component: Any,
     *,
     control_width: str = "12rem",
-    col_width="auto",
+    col_width: int | str = "auto",
     label_width: str = "7rem",
     gap: str = "0.5rem",
     className: str = "mb-3",
-):
+) -> dbc.Col:
     """One-line label + control with a fixed-width control area."""
     return dbc.Col(
         html.Div(
@@ -38,7 +40,7 @@ def labeled_fixed_width_control_row(
     )
 
 
-def date_controlled_row(page, selected_date, className: str = "mb-3"):
+def date_controlled_row(page: str, selected_date: str, className: str = "mb-3") -> dbc.Col:
     return (
         labeled_fixed_width_control_row(
             "Date",

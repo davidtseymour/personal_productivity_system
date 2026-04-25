@@ -1,10 +1,11 @@
 import datetime as dt
+from typing import Any
 
 import pandas as pd
 
 from src.data_access.db import load_recent_task_data, load_today_summary_minutes
 
-def get_today_summary_payload(user_id) -> dict:
+def get_today_summary_payload(user_id: str) -> dict[str, Any]:
     today = dt.date.today()
     df = load_today_summary_minutes(user_id, today)
 
@@ -35,7 +36,7 @@ def get_today_summary_payload(user_id) -> dict:
 
 
 
-def get_recent_tasks(n=5,user_id=None) ->  pd.DataFrame | None:
+def get_recent_tasks(n: int = 5, user_id: str | None = None) -> pd.DataFrame | None:
     if user_id is None:
         return None
 

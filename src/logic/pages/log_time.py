@@ -1,17 +1,25 @@
 from datetime import datetime
+from typing import Any
+
 from src.helpers.general import validate_time_inputs
 
 TWO_HOURS_MIN = 120
 
 
 def validate_task_fields(
-    start_date, start_time, end_date, end_time, hours, minutes, include_placeholders=True
-):
+    start_date: str | None,
+    start_time: str | None,
+    end_date: str | None,
+    end_time: str | None,
+    hours: str | None,
+    minutes: str | None,
+    include_placeholders: bool = True,
+) -> tuple[Any, ...]:
     inv_start_date, inv_start_time, inv_end_date, inv_end_time, inv_hours, inv_minutes = validate_time_inputs(
         start_date, start_time, end_date, end_time, hours, minutes
     )
 
-    def parse_dt(d, t):
+    def parse_dt(d: str | None, t: str | None) -> datetime | None:
         if not d or not t:
             return None
         try:
@@ -19,7 +27,7 @@ def validate_task_fields(
         except (TypeError, ValueError):
             return None
 
-    def to_int(v):
+    def to_int(v: Any) -> int | None:
         if v in (None, "", "None"):
             return None
         try:

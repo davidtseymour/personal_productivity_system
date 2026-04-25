@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any, Callable
 
 from dash import html
 import dash_bootstrap_components as dbc
@@ -15,7 +16,11 @@ from src.helpers.general import fmt_h_m
 from src.layout.common_components import empty_fig
 
 
-def df_to_daily_html_table(df, fmt_minutes_fn, highlight_rows=None):
+def df_to_daily_html_table(
+    df: pd.DataFrame | None,
+    fmt_minutes_fn: Callable[[float], str],
+    highlight_rows: dict[Any, dict[str, Any]] | None = None,
+) -> dbc.Table | None:
     """
     Build a simple daily summary HTML table (Dash + dbc) from a long-form dataframe.
 
@@ -52,7 +57,7 @@ def df_to_daily_html_table(df, fmt_minutes_fn, highlight_rows=None):
 
     highlight_rows = highlight_rows or {}
 
-    def _row_style(cat, sub):
+    def _row_style(cat: str, sub: str) -> dict[str, Any]:
         style = {}
         if (cat, sub) in highlight_rows:
             style.update(highlight_rows[(cat, sub)])
@@ -98,7 +103,7 @@ def df_to_daily_html_table(df, fmt_minutes_fn, highlight_rows=None):
     )
 
 
-def get_subcategory_df_for_date(user_id, summary_date):
+def get_subcategory_df_for_date(user_id: str, summary_date: str | date) -> pd.DataFrame:
     task_summary = load_task_base_for_daily_summary(user_id, summary_date=summary_date)
     daily_summary = load_metrics_base_for_daily_summary(user_id, summary_date=summary_date)
 
@@ -133,11 +138,11 @@ def get_subcategory_df_for_date(user_id, summary_date):
     return combined
 
 
-def get_today_subcategory_df(user_id):
+def get_today_subcategory_df(user_id: str) -> pd.DataFrame:
     return get_subcategory_df_for_date(user_id, date.today())
 
 
-def make_stacked_subcategory_fig(df):
+def make_stacked_subcategory_fig(df: pd.DataFrame | None) -> go.Figure:
     """
     Horizontal stacked bar chart:
       - y = category

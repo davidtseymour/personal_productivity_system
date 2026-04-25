@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dash import Input, Output, html
+from dash import Dash, Input, Output, html
 import dash_bootstrap_components as dbc
 
 from src.layout.pages.daily_metrics import create_daily_metrics
@@ -13,7 +13,7 @@ from src.layout.pages.settings import create_settings_page
 from src.layout.pages.weekly_summary import create_weekly_summary_page
 
 
-def register_layout_callbacks(app):
+def register_layout_callbacks(app: Dash) -> None:
     @app.callback(
         Output("page-content", "children"),
         Input("url", "pathname"),

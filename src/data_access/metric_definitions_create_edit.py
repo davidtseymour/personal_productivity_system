@@ -4,18 +4,18 @@ from src.data_access.db import load_sql_engine
 
 def add_metric_definition(
     *,
-    user_id,
-    metric_key,
-    display_name,
-    unit,
-    value_type,
-    sort_order,
-    is_duration=False,
-    subcategory=None,
-    to_minutes_factor=None,
-    activity=None,
-    category_id=None,
-):
+    user_id: str,
+    metric_key: str,
+    display_name: str,
+    unit: str,
+    value_type: str,
+    sort_order: int,
+    is_duration: bool = False,
+    subcategory: str | None = None,
+    to_minutes_factor: float | None = None,
+    activity: str | None = None,
+    category_id: int | None = None,
+) -> None:
     """
     Insert a new metric definition.
 
@@ -70,6 +70,4 @@ def add_metric_definition(
         conn.execute(query, params)
 
 #Todo: Edit daily metric
-
-
 

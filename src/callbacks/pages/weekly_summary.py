@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from dash import Input, Output, State, ctx
+from dash import Dash, Input, Output, State, ctx
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
@@ -18,7 +18,7 @@ def _normalize_date_columns(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def register_weekly_summary_callbacks(app):
+def register_weekly_summary_callbacks(app: Dash) -> None:
     page = "weekly-summary"
 
     @app.callback(

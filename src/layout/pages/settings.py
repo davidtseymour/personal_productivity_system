@@ -1,6 +1,8 @@
 # Todo: Option to edit/add daily metrics
 # Todo: Option to edit/add categories.
 
+from typing import Any
+
 from dash import html
 import dash_bootstrap_components as dbc
 
@@ -11,7 +13,7 @@ from src.data_access.settings import (
 from src.helpers.general import get_category_layout
 
 
-def create_settings_page(user_id=None) -> html.Div:
+def create_settings_page(user_id: str | None = None) -> html.Div:
     page = "settings"
 
     return dbc.Container(
@@ -47,7 +49,11 @@ def create_settings_page(user_id=None) -> html.Div:
 
 
 
-def edit_categories_content(user_id, draft_rows=None, edited_rows=None):
+def edit_categories_content(
+    user_id: str,
+    draft_rows: list[dict[str, Any]] | None = None,
+    edited_rows: dict[str, Any] | None = None,
+) -> list[Any]:
     rows = fetch_user_categories_sort_order_rows(user_id)
     draft_rows = draft_rows or []
     edited_rows = edited_rows or {}
@@ -414,7 +420,12 @@ def edit_categories_content(user_id, draft_rows=None, edited_rows=None):
     ]
 
 
-def edit_metrics_content(user_id, draft_rows=None, edited_rows=None, row_order=None):
+def edit_metrics_content(
+    user_id: str,
+    draft_rows: list[dict[str, Any]] | None = None,
+    edited_rows: dict[str, Any] | None = None,
+    row_order: list[str] | None = None,
+) -> list[Any]:
     rows = fetch_user_metrics_for_settings(user_id)
     draft_rows = draft_rows or []
     edited_rows = edited_rows or {}

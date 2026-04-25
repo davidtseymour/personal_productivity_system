@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from dash import dcc, html
 import dash_bootstrap_components as dbc
@@ -12,7 +13,7 @@ from src.layout.common_components import create_toast, labeled_control_row
 # keep same keys but expand start_at and stop_at into their date time components
 
 
-def get_default_task_values():
+def get_default_task_values() -> dict[str, str]:
     today = date.today().isoformat()
     return {
         "start_date": today,
@@ -29,14 +30,19 @@ def get_default_task_values():
     }
 
 
-def normalize_task_values(values=None):
+def normalize_task_values(values: dict[str, Any] | None = None) -> dict[str, Any]:
     base = get_default_task_values()
     if values:
         base.update({k: v for k, v in values.items() if v is not None})
     return base
 
 
-def create_task_inputs(page, user_id, store_data=None, values=None):
+def create_task_inputs(
+    page: str,
+    user_id: str,
+    store_data: dict[str, Any] | None = None,
+    values: dict[str, Any] | None = None,
+) -> list[Any]:
     group = "task-input"
     values = normalize_task_values(values)
 
@@ -230,7 +236,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
     ]
 
 
-def create_task_form(user_id):
+def create_task_form(user_id: str) -> dbc.Container:
     page = "log-time"
 
     return dbc.Container(

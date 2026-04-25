@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from dash import Input, Output, State, ctx, no_update
+from dash import Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
@@ -10,7 +10,7 @@ from src.helpers.update_events import build_update_event
 from src.layout.toasts import hide_toast, toast, update_toast
 from src.logic.pages.log_time import validate_task_fields
 
-def register_log_time_callbacks(app):
+def register_log_time_callbacks(app: Dash) -> None:
     page = "log-time"
     group = "task-input"
 

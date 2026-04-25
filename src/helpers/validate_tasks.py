@@ -1,8 +1,13 @@
 from datetime import timedelta
+from typing import Any
+
 from src.helpers.general import is_valid_date, is_valid_time, combine_datetime, get_category_id_list
 
 
-def validate_process_time_inputs(form_values, return_time_value=True):
+def validate_process_time_inputs(
+    form_values: dict[str, Any],
+    return_time_value: bool = True,
+) -> tuple[dict[str, bool], dict[str, Any]] | dict[str, bool]:
     start_date = form_values.get("start_date", "")
     start_time = form_values.get("start_time", "")
     end_date = form_values.get("end_date", "")
@@ -125,7 +130,7 @@ def validate_process_time_inputs(form_values, return_time_value=True):
     else:
         return invalid
 
-def calculate_hh_mm_placeholders(form_values):
+def calculate_hh_mm_placeholders(form_values: dict[str, Any]) -> tuple[str, str]:
     start_date = form_values.get("start_date", "")
     start_time = form_values.get("start_time", "")
     end_date = form_values.get("end_date", "")
@@ -154,7 +159,7 @@ def calculate_hh_mm_placeholders(form_values):
 
     return placeholder_hours, placeholder_mins
 
-def _safe_int(x) -> int | None:
+def _safe_int(x: Any) -> int | None:
     if x is None:
         return None
     try:
@@ -163,7 +168,7 @@ def _safe_int(x) -> int | None:
         return None
 
 
-def validate_category_complete(user_id, form_values):
+def validate_category_complete(user_id: str, form_values: dict[str, Any]) -> tuple[bool, dict[str, Any]]:
     """
     Validate that:
       - category_id is present and belongs to the user (active categories)

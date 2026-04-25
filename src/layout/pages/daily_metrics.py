@@ -8,7 +8,7 @@ from src.layout.common_components import create_toast, labeled_control_row
 from src.logic.pages.daily_metric import metric_placeholder, normalize_metric_definitions
 
 
-def create_daily_metrics(user_id) -> dbc.Form:
+def create_daily_metrics(user_id: str) -> dbc.Form:
     # - determine whether layout should be different for different users (probably yes)
 
     page = "daily-metrics"

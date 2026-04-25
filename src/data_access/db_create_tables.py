@@ -1,10 +1,10 @@
-from sqlalchemy import text
+from sqlalchemy import Engine, text
 from src.data_access.db import load_sql_engine
 
 # *************** MAIN STRUCTURE ***************
 
 # ----- Users-----
-def create_users_table(engine):
+def create_users_table(engine: Engine) -> None:
 
     statements = [
         """CREATE EXTENSION IF NOT EXISTS pgcrypto;""",
@@ -24,7 +24,7 @@ def create_users_table(engine):
             conn.execute(text(stmt))
 
 # ----- User Categories -----
-def create_user_categories(engine) -> None:
+def create_user_categories(engine: Engine) -> None:
     statements: list[str] = [
         """
         CREATE TABLE IF NOT EXISTS user_categories (
@@ -59,7 +59,7 @@ def create_user_categories(engine) -> None:
 # *************** Tasks ***************
 
 # ----- task_data ------
-def create_task_data_table(engine) -> None:
+def create_task_data_table(engine: Engine) -> None:
     stmts = [
         """
         CREATE TABLE IF NOT EXISTS task_data (
@@ -112,7 +112,7 @@ def create_task_data_table(engine) -> None:
 
 # ----- metric_definitions -----
 
-def create_metric_definitions_table(engine) -> None:
+def create_metric_definitions_table(engine: Engine) -> None:
     stmts = [
         """
         CREATE TABLE IF NOT EXISTS metric_definitions (
@@ -159,7 +159,7 @@ def create_metric_definitions_table(engine) -> None:
 
 # ----- daily_metric_values -----
 
-def create_daily_metric_values_table(engine) -> None:
+def create_daily_metric_values_table(engine: Engine) -> None:
     stmts = [
         """
         CREATE TABLE IF NOT EXISTS daily_metric_values (
@@ -194,7 +194,7 @@ def create_daily_metric_values_table(engine) -> None:
 # *************** GOALS ***************
 
 # ----- GOAL THEMES -----
-def create_goal_themes_table(engine) -> None:
+def create_goal_themes_table(engine: Engine) -> None:
     statements = [
         """
         CREATE TABLE IF NOT EXISTS goal_themes (
@@ -223,7 +223,7 @@ def create_goal_themes_table(engine) -> None:
 
 
 # ----- GOAL SETS -----
-def create_goal_sets_table(engine) -> None:
+def create_goal_sets_table(engine: Engine) -> None:
     statements = [
         # Enum for horizon (idempotent)
         """
@@ -256,7 +256,7 @@ def create_goal_sets_table(engine) -> None:
 
 
 # ----- GOAL SET ITEMS (item-level revisions) -----
-def create_goal_set_items_table(engine) -> None:
+def create_goal_set_items_table(engine: Engine) -> None:
     stmts = [
         """
         CREATE TABLE IF NOT EXISTS goal_set_items (
@@ -292,7 +292,7 @@ def create_goal_set_items_table(engine) -> None:
 # *************** DAILY REFLECTION ***************
 
 # ----- CREATE DAILY REFLECTION TABLE -----
-def create_daily_reflections_table(engine):
+def create_daily_reflections_table(engine: Engine) -> None:
     stmts = [
         """
         CREATE TABLE IF NOT EXISTS daily_reflections (
@@ -323,7 +323,7 @@ def create_daily_reflections_table(engine):
             conn.execute(text(stmt))
 
 
-def init_db():
+def init_db() -> None:
     engine = load_sql_engine()
 
     # Main Structure

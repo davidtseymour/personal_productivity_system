@@ -1,4 +1,4 @@
-from dash import Input, Output, State, ctx, no_update
+from dash import Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.goals import (
@@ -8,7 +8,7 @@ from src.layout.toasts import toast, update_toast, hide_toast
 from src.logic.pages.goals import get_goal_set_id_for_offset, ensure_goal_set_id_for_save
 
 
-def register_goals_callbacks(app):
+def register_goals_callbacks(app: Dash) -> None:
     @app.callback(
         Output({"page": "goals", "name": "add-theme-modal", "type": "modal"}, "is_open"),
         Output({"page": "goals", "name": "new-theme-name", "type": "input"}, "value"),

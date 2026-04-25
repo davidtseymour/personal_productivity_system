@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import Any
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -37,7 +38,7 @@ def combine_task_metrics_subcat_agg(user_id: str) -> pd.DataFrame:
     return df
 
 
-def get_task_summary_data(user_id):
+def get_task_summary_data(user_id: str) -> tuple[dict[str, Any], pd.DataFrame]:
     """
     Returns:
       - data_store_return: dict keyed by horizon_days (int) with:
@@ -62,13 +63,13 @@ def get_task_summary_data(user_id):
 
     category_df = category_df[category_df["date"] <= end]
 
-    def _filter_horizon(df, days: int):
+    def _filter_horizon(df: pd.DataFrame, days: int) -> pd.DataFrame:
         if days > 0:
             start = today - dt.timedelta(days=days)
             return df[(df["date"] >= start) & (df["date"]<=end)].copy()
         return df.copy()
 
-    def _top_n_plus_other(series, n=8, other_label="Other"):
+    def _top_n_plus_other(series: pd.Series, n: int = 8, other_label: str = "Other") -> dict[str, float]:
         """
         series: pd.Series indexed by subcategory, values are hours (or minutes)
         returns dict of top n plus 'Other' (sum of remainder)
@@ -140,7 +141,13 @@ def get_task_summary_data(user_id):
     return data_store_return, category_pivot
 
 
-def plot_ts(ts, category_dict, do_smoothing=True, roll_period=7, smoothing_sigma=1.5):
+def plot_ts(
+    ts: pd.DataFrame,
+    category_dict: dict[str, str],
+    do_smoothing: bool = True,
+    roll_period: int = 7,
+    smoothing_sigma: float = 1.5,
+) -> go.Figure:
     """
     Plot a time series with optional rolling average and Gaussian smoothing.
 
@@ -196,7 +203,12 @@ def plot_ts(ts, category_dict, do_smoothing=True, roll_period=7, smoothing_sigma
     return fig
 
 
-def plot_cat_from_store(store_data: dict, category_dict: dict, day_nums: str | int, category_id: str | None = None):
+def plot_cat_from_store(
+    store_data: dict[str, Any],
+    category_dict: dict[str, str],
+    day_nums: str | int,
+    category_id: str | None = None,
+) -> go.Figure:
     """
     Plot total time and average weekly time from pre-aggregated datastore JSON.
 

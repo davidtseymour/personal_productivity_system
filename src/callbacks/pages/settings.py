@@ -1,6 +1,7 @@
 import uuid
+from typing import Any
 
-from dash import ALL, Input, Output, State, ctx, no_update
+from dash import ALL, Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.settings import (
@@ -11,7 +12,7 @@ from src.helpers.general import get_category_layout
 from src.layout.pages.settings import edit_categories_content, edit_metrics_content
 
 
-def _normalize_positive_double(value):
+def _normalize_positive_double(value: Any) -> tuple[bool, str]:
     text = "" if value is None else str(value).strip()
     if text == "":
         return True, ""
@@ -24,7 +25,7 @@ def _normalize_positive_double(value):
     return True, text
 
 
-def register_settings_callbacks(app):
+def register_settings_callbacks(app: Dash) -> None:
     @app.callback(
         Output("edit-setting-modal", "is_open"),
         Output("settings-modal-mode", "data"),

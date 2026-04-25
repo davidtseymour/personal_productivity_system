@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from src.layout.common_components import create_toast
 
 
-def generate_delete_modal():
+def generate_delete_modal() -> html.Div:
     return html.Div(
         [
             dcc.Store(id="pending-delete-task-id"),
@@ -27,7 +27,7 @@ def generate_delete_modal():
     )
 
 
-def generate_edit_task_offcanvas():
+def generate_edit_task_offcanvas() -> html.Div:
     page = "edit-modal"
 
     return html.Div(
@@ -69,7 +69,7 @@ def generate_edit_task_offcanvas():
     )
 
 
-def generate_edit_settings_offcanvas():
+def generate_edit_settings_offcanvas() -> html.Div:
     page = "settings-modal"
 
     return html.Div(

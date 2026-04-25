@@ -1,3 +1,5 @@
+from typing import Any
+
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 
@@ -6,12 +8,12 @@ from src.helpers.general import fmt_h_m
 from src.layout.common_components import create_toast
 
 
-def get_dcc_options():
+def get_dcc_options() -> list[dict[str, str]]:
     users = get_users()  # {user_id: display_name}
     return [{"label": name, "value": user_id} for user_id, name in users.items()]
 
 
-def create_left_navigation():
+def create_left_navigation() -> html.Div:
     """Left sidebar navigation (vertical)"""
     return html.Div(
         [
@@ -101,7 +103,7 @@ def create_left_navigation():
     )
 
 
-def create_right_sidebar():
+def create_right_sidebar() -> html.Div:
     return html.Div(
         [
             dbc.Card(
@@ -121,7 +123,7 @@ def create_right_sidebar():
     )
 
 
-def create_daily_summary_component():
+def create_daily_summary_component() -> html.Div:
     return html.Div(
         [
             html.Div(
@@ -150,7 +152,7 @@ def create_daily_summary_component():
     )
 
 
-def create_recent_tasks_component():
+def create_recent_tasks_component() -> html.Div:
     return html.Div(
         [
             html.Div("Recent Tasks", className="fw-semibold fs-5 text-center mb-2"),
@@ -161,7 +163,7 @@ def create_recent_tasks_component():
     )
 
 
-def render_today_summary_table(payload):
+def render_today_summary_table(payload: dict[str, Any] | None) -> dbc.Table | html.Small:
     if payload is None:
         return html.Small("No user id.", className="text-muted")
 

@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from functools import lru_cache
 import os
+from typing import Any
 
 from dotenv import load_dotenv
 import pandas as pd
@@ -27,7 +28,7 @@ def load_sql_engine()->Engine:
 
 
 
-def fetch_user_categories_rows(user_id: str): #Main source of truth
+def fetch_user_categories_rows(user_id: str) -> list[dict[str, Any]]: #Main source of truth
     engine = load_sql_engine()
     sql = text("""
         SELECT category_id, category_name
@@ -67,7 +68,7 @@ def get_category_from_id(user_id: str, category_id: int) -> str | None:
 # These queries return (date, category, total_minutes) and are
 # combined in pandas to produce unified daily category totals.
 
-def load_category_list(user_id):
+def load_category_list(user_id: str) -> list[dict[str, Any]]:
     engine = load_sql_engine()
     sql = text("""
               SELECT category_id, category_name
@@ -81,7 +82,7 @@ def load_category_list(user_id):
 
     return [{"label": r["category_name"], "value": r["category_id"]} for r in rows]
 
-def load_tasks_base_for_view_trend(user_id):
+def load_tasks_base_for_view_trend(user_id: str) -> pd.DataFrame:
     engine = load_sql_engine()
     sql = text("""
         SELECT
@@ -98,7 +99,7 @@ def load_tasks_base_for_view_trend(user_id):
     return pd.read_sql(sql, engine, params={"user_id": user_id})
 
 
-def load_daily_metrics_base_for_view_trend(user_id):
+def load_daily_metrics_base_for_view_trend(user_id: str) -> pd.DataFrame:
     engine = load_sql_engine()
     sql = text("""
         SELECT
@@ -120,7 +121,11 @@ def load_daily_metrics_base_for_view_trend(user_id):
 
 # Weekly summary task tables
 
-def load_weekly_summary_table_dailies(user_id, selected_start_date=None, days: int = 7):
+def load_weekly_summary_table_dailies(
+    user_id: str,
+    selected_start_date: date | None = None,
+    days: int = 7,
+) -> pd.DataFrame:
     engine = load_sql_engine()
     start_date = selected_start_date or (date.today() - timedelta(days=7))
     end_date = start_date + timedelta(days=days)
@@ -150,7 +155,10 @@ def load_weekly_summary_table_dailies(user_id, selected_start_date=None, days: i
 
 # New functions
 
-def load_task_base_for_daily_summary(user_id, summary_date=None):
+def load_task_base_for_daily_summary(
+    user_id: str,
+    summary_date: date | str | None = None,
+) -> pd.DataFrame:
     engine = load_sql_engine()
     summary_date = summary_date or date.today()
     sql = text("""
@@ -168,7 +176,10 @@ def load_task_base_for_daily_summary(user_id, summary_date=None):
     """)
     return pd.read_sql(sql, engine, params={"user_id": user_id, "summary_date": summary_date})
 
-def load_metrics_base_for_daily_summary(user_id, summary_date=None):
+def load_metrics_base_for_daily_summary(
+    user_id: str,
+    summary_date: date | str | None = None,
+) -> pd.DataFrame:
     engine = load_sql_engine()
     summary_date = summary_date or date.today()
     sql = text("""
@@ -190,7 +201,7 @@ def load_metrics_base_for_daily_summary(user_id, summary_date=None):
     return pd.read_sql(sql, engine, params={"user_id": user_id, "summary_date": summary_date})
 
 
-def load_recent_task_data(user_id, n=5):
+def load_recent_task_data(user_id: str, n: int = 5) -> pd.DataFrame:
     engine = load_sql_engine()
     query = text("""
         SELECT
@@ -211,7 +222,7 @@ def load_recent_task_data(user_id, n=5):
     return pd.read_sql(query, con=engine, params={"user_id": user_id, "n": int(n)})
 
 
-def insert_task(row_dict):
+def insert_task(row_dict: dict[str, Any]) -> None:
     engine = load_sql_engine()
     with engine.begin() as conn:
         conn.execute(
@@ -228,7 +239,7 @@ def insert_task(row_dict):
             row_dict,
         )
 
-def update_task(task_id: int, row_dict: dict, user_id:str):
+def update_task(task_id: int, row_dict: dict[str, Any], user_id: str) -> None:
     engine = load_sql_engine()
     with engine.begin() as conn:
         conn.execute(
@@ -276,7 +287,7 @@ def load_task_db(task_id: int) -> dict:
 
     return dict(result)
 
-def update_daily_metrics(records):
+def update_daily_metrics(records: list[dict[str, Any]]) -> None:
     """
     records: list[dict] with keys:
       - user_id
@@ -301,7 +312,11 @@ def update_daily_metrics(records):
         conn.execute(text(UPSERT_SQL), records)
 
 
-def delete_daily_metrics_for_keys(user_id, metric_date, metric_keys):
+def delete_daily_metrics_for_keys(
+    user_id: str,
+    metric_date: date | str,
+    metric_keys: list[str] | None,
+) -> None:
     """
     Deletes daily_metric_values rows for the given user/date/metric key set.
     """
@@ -327,7 +342,7 @@ def delete_daily_metrics_for_keys(user_id, metric_date, metric_keys):
             },
         )
 
-def get_daily_metrics_definitions(user_id):
+def get_daily_metrics_definitions(user_id: str) -> list[dict[str, Any]]:
     sql = """
         SELECT metric_key, display_name, is_duration, value_type, unit
         FROM metric_definitions
@@ -345,7 +360,7 @@ def get_daily_metrics_definitions(user_id):
 
     return rows
 
-def get_daily_metrics_for_date(metric_date, user_id):
+def get_daily_metrics_for_date(metric_date: date | str, user_id: str) -> dict[str, Any]:
     sql = """
     SELECT
       dmv.metric_key,
@@ -379,7 +394,7 @@ def delete_task_sql(task_id: int) -> None:
             {"task_id": task_id},
         )
 
-def get_user_id(username: str):
+def get_user_id(username: str) -> str:
     engine = load_sql_engine()
     sql = """
         SELECT user_id
@@ -394,7 +409,7 @@ def get_user_id(username: str):
         ).scalar_one())
 
 
-def get_users():
+def get_users() -> dict[str, str]:
     engine = load_sql_engine()
 
     sql = """
@@ -412,12 +427,12 @@ def get_users():
 
     return {str(row["user_id"]): row["display_name"] for row in rows}
 
-def get_first_user_id():
+def get_first_user_id() -> str | None:
     users = get_users()
     return next(iter(users), None)
 
 
-def load_today_summary_minutes(user_id: str, selected_date):
+def load_today_summary_minutes(user_id: str, selected_date: date | str) -> pd.DataFrame:
     engine = load_sql_engine()
     sql = text("""
         WITH task_totals AS (
@@ -460,7 +475,11 @@ def load_today_summary_minutes(user_id: str, selected_date):
     return pd.read_sql(sql, engine, params={"user_id": user_id, "selected_date": selected_date})
 
 
-def load_weekly_summary_minutes_by_day(user_id: str, selected_start_date=None, days: int = 7):
+def load_weekly_summary_minutes_by_day(
+    user_id: str,
+    selected_start_date: date | None = None,
+    days: int = 7,
+) -> pd.DataFrame:
     start_date = selected_start_date or (date.today() - timedelta(days=7))
     end_date = start_date + timedelta(days=days)
 

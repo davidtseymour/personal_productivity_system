@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from dash import Input, Output, State, no_update
+from dash import Dash, Input, Output, State, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.daily_reflection import load_daily_reflection, upsert_daily_reflection
 from src.layout.toasts import hide_toast
 
 
-def register_daily_reflection_callbacks(app):
+def register_daily_reflection_callbacks(app: Dash) -> None:
     page = "daily-reflection"
 
     # ---------- SAVE ----------

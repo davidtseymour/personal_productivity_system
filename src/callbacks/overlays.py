@@ -1,11 +1,13 @@
-from dash import Input, Output, State
+from typing import Any
+
+from dash import Dash, Input, Output, State
 from dash import html
 
 from src.helpers.validate_tasks import validate_process_time_inputs, calculate_hh_mm_placeholders, \
     validate_category_complete
 from src.layout.pages.log_time import create_task_inputs
 
-def populate_edit_task_modal(user_id,task_list):
+def populate_edit_task_modal(user_id: str, task_list: dict[str, Any]) -> tuple[Any, ...]:
     page = "edit-modal"
     return (
             html.H5("Edit Task"),
@@ -13,7 +15,7 @@ def populate_edit_task_modal(user_id,task_list):
         )
 
 
-def register_overlays_callbacks(app):
+def register_overlays_callbacks(app: Dash) -> None:
 
     TWO_HOURS_MIN = 120
     page = "edit-modal"

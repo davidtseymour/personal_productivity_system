@@ -1,12 +1,11 @@
 #Todo: cleaning up placeholder structure to add zeros to hours/minutes when the other is filled and the other two colums are not filled
 #Todo
 # - Logic for the track goals graphs??
-
-from dash import Input, Output, ctx, State
+from dash import Dash, Input, Output, State, ctx
 from src.logic.pages.patterns_trends import plot_cat_from_store
 
 
-def register_trends_callbacks(app):
+def register_trends_callbacks(app: Dash) -> None:
     @app.callback(
         Output("productivity-graph", "figure"),
         [

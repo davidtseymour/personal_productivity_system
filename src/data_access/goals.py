@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 from sqlalchemy import text
 
@@ -46,7 +46,7 @@ def get_or_create_goal_theme(name: str, user_id: str) -> tuple[int, bool]:
 
     return int(row.goal_theme_id), bool(row.created_new)
 
-def get_goals_themes(user_id):
+def get_goals_themes(user_id: str) -> list[dict[str, Any]]:
     """
        Returns dropdown options for goal themes for a given user.
        Each option is: {"label": <theme name>, "value": <goal_theme_id>}

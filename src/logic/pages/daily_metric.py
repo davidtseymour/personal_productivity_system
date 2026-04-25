@@ -1,3 +1,5 @@
+from typing import Any
+
 def metric_placeholder(is_duration: bool) -> str:
     #return "0:00" if is_duration else "0"
     if is_duration:
@@ -5,7 +7,7 @@ def metric_placeholder(is_duration: bool) -> str:
     else:
         return "0"
 
-def normalize_metric_definitions(rows) -> list[dict]:
+def normalize_metric_definitions(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     # rows from .mappings()
     out = []
     for r in rows:
@@ -21,7 +23,7 @@ def normalize_metric_definitions(rows) -> list[dict]:
     return out
 
 
-def metric_specs_by_key(rows) -> dict[str, dict]:
+def metric_specs_by_key(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     specs = {}
     for m in normalize_metric_definitions(rows):
         key = str(m["metric_key"])

@@ -1,8 +1,10 @@
 # callbacks/today_summary.py
+from typing import Any
 
-from dash import ALL, Input, Output, State, ctx, html, no_update
+from dash import ALL, Dash, Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
+import pandas as pd
 
 from src.callbacks.overlays import populate_edit_task_modal
 from src.data_access.db import delete_task_sql, load_task_db, update_task
@@ -25,7 +27,7 @@ def _triggered_all_value(input_index: int, triggered_id: dict) -> int:
     return 0
 
 
-def render_recent_task(df_recent):
+def render_recent_task(df_recent: pd.DataFrame | None) -> Any:
 
     if df_recent is None or df_recent.empty:
         return html.Div(html.Small("No tasks to display.", className="text-muted"))
@@ -83,7 +85,7 @@ def render_recent_task(df_recent):
     return dbc.ListGroup(items, flush=True)
 
 
-def register_navigation_callbacks(app):
+def register_navigation_callbacks(app: Dash) -> None:
     @app.callback(
         Output("today-summary-sidebar", "children"),
         Output("today-recent-tasks-sidebar", "children"),

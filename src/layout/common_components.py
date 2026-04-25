@@ -1,3 +1,5 @@
+from typing import Any
+
 from dash import html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
@@ -33,13 +35,13 @@ def create_toast(
 
 def labeled_control_row(
     label_text: str,
-    control_component,
+    control_component: Any,
     *,
-    col_width=4,
+    col_width: int | str = 4,
     label_width: str = "6.875rem",
     gap: str = "0.5rem",
     className: str = "mb-3",
-):
+) -> dbc.Col:
     """
     One-line label + control with fixed label width, Bootstrap col width preserved.
 
@@ -83,7 +85,7 @@ def labeled_control_row(
         width=col_width,
     )
 
-def empty_fig(message="No productive time logged today."):
+def empty_fig(message: str = "No productive time logged today.") -> go.Figure:
     fig = go.Figure()
     fig.add_annotation(
         text=message,

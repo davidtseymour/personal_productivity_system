@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from dash import Input, Output, State, ctx, html
+from dash import Dash, Input, Output, State, ctx, html
 from dash.exceptions import PreventUpdate
 
 from src.helpers.general import fmt_h_m
@@ -11,7 +11,7 @@ from src.logic.pages.daily_summary import (
 )
 
 
-def register_daily_summary_callbacks(app):
+def register_daily_summary_callbacks(app: Dash) -> None:
     page = "daily-summary"
 
     @app.callback(

@@ -1,10 +1,11 @@
 import re
+from typing import Any
 
 from sqlalchemy import text
 from src.data_access.db import load_sql_engine
 
 
-def fetch_user_categories_sort_order_rows(user_id: str): #Main source of truth
+def fetch_user_categories_sort_order_rows(user_id: str) -> list[dict[str, Any]]: #Main source of truth
     engine = load_sql_engine()
     sql = text("""
         SELECT category_id, category_name, is_active
@@ -15,7 +16,7 @@ def fetch_user_categories_sort_order_rows(user_id: str): #Main source of truth
     with engine.connect() as conn:
         return conn.execute(sql, {"user_id": user_id}).mappings().all()
 
-def fetch_user_metrics_for_settings(user_id: str):
+def fetch_user_metrics_for_settings(user_id: str) -> list[dict[str, Any]]:
     engine = load_sql_engine()
     sql = text("""
         SELECT
@@ -78,7 +79,7 @@ def _slugify_metric_key(display_name: str) -> str:
     return key or "metric"
 
 
-def _ensure_metric_key_unique(conn, user_id: str, base_key: str) -> str:
+def _ensure_metric_key_unique(conn: Any, user_id: str, base_key: str) -> str:
     probe = base_key
     suffix = 1
     while True:
@@ -100,7 +101,11 @@ def _ensure_metric_key_unique(conn, user_id: str, base_key: str) -> str:
         probe = f"{base_key}_{suffix}"
 
 
-def _normalize_category_fields(category_id, subcategory, activity):
+def _normalize_category_fields(
+    category_id: Any,
+    subcategory: Any,
+    activity: Any,
+) -> tuple[int | None, str | None, str | None]:
     cid = None if category_id in (None, "") else int(category_id)
     sub = (subcategory or "").strip() or None
     act = (activity or "").strip() or None
@@ -111,7 +116,7 @@ def _normalize_category_fields(category_id, subcategory, activity):
     return cid, sub, act
 
 
-def _normalize_to_minutes_factor(value):
+def _normalize_to_minutes_factor(value: Any) -> float | None:
     txt = "" if value is None else str(value).strip()
     if txt == "":
         return None

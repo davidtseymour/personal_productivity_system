@@ -1,6 +1,7 @@
 import re
+from typing import Any
 
-from dash import ALL, Input, Output, State, ctx
+from dash import ALL, Dash, Input, Output, State, ctx
 from dash.exceptions import PreventUpdate
 from src.data_access.db import (
     get_daily_metrics_definitions,
@@ -17,7 +18,7 @@ _HMM_RE = re.compile(r"^\s*(\d+):([0-5]\d)\s*$")   # h:mm with mm = 00–59
 _NUM_RE = re.compile(r"^\s*\d+(\.\d+)?\s*$")      # integer or float
 
 
-def hmm_to_minutes(x):
+def hmm_to_minutes(x: Any) -> float | int | None:
     """
     Accepts:
       - None / ""            → None
@@ -54,7 +55,7 @@ def hmm_to_minutes(x):
     return None
 
 
-def _spec_for(metric_specs, key):
+def _spec_for(metric_specs: dict[str, dict[str, Any]] | None, key: str) -> dict[str, Any]:
     spec = (metric_specs or {}).get(key, {})
     return {
         "is_duration": bool(spec.get("is_duration", False)),
@@ -62,7 +63,7 @@ def _spec_for(metric_specs, key):
     }
 
 
-def _normalize_metric_value(raw, spec):
+def _normalize_metric_value(raw: Any, spec: dict[str, Any]) -> float | int | None:
     if raw in (None, ""):
         return None
 
@@ -83,7 +84,7 @@ def _normalize_metric_value(raw, spec):
     return v
 
 
-def register_daily_metrics_callbacks(app):
+def register_daily_metrics_callbacks(app: Dash) -> None:
     @app.callback(
         Output("daily-metrics-specs", "data"),
         Input("user-id", "data"),

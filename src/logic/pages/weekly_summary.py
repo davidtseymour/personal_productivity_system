@@ -1,3 +1,5 @@
+from typing import Callable
+
 from dash import html
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -5,14 +7,14 @@ import pandas as pd
 def df_to_weekly_html_table(
     df: pd.DataFrame,
     daily_metrics: pd.DataFrame,
-    fmt_minutes_fn,          # e.g. fmt_h_m (minutes -> "1h 26m")
-    fmt_metric_fn,           # e.g. fmt_int_display or lambda x: f"{to_int(x):,}"
+    fmt_minutes_fn: Callable[[float], str],          # e.g. fmt_h_m (minutes -> "1h 26m")
+    fmt_metric_fn: Callable[[float], str],           # e.g. fmt_int_display or lambda x: f"{to_int(x):,}"
     title: str | None = None,
     show_row_averages: bool = True,     # last column is "Average" (per row)
     show_bottom_totals: bool = True,    # bottom row is "Total" per day (sum across rows)
     highlight_rows: dict[str, dict] | None = None,  # e.g. {"Screen": {"color":"#b00020","fontWeight":"600"}}
     excluded_rows: list[str] | None = None,         # e.g. ["Screen", "Sleep"]
-):
+) -> dbc.Table | html.Div | html.Small:
     """
     df: pivoted minutes df (index=category/metric, columns=dates, values=minutes)
     daily_metrics: pivoted metrics df (index=metric_key, columns=dates, values=numeric), same date columns ideal

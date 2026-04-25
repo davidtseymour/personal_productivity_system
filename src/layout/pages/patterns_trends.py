@@ -6,7 +6,7 @@ from src.helpers.general import get_category_layout
 from src.logic.pages.patterns_trends import get_task_summary_data, plot_cat_from_store, plot_ts
 
 
-def create_trends_page(user_id):
+def create_trends_page(user_id: str) -> dbc.Container:
     # NOTE: These data fetches/figures are computed at layout creation time.
     # If load time becomes an issue, move into callbacks and/or cache results.
     category_dict = load_category_id_to_name(user_id)
