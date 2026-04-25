@@ -116,12 +116,12 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                                             id={"page": page, "group": group, "name": "duration-hours", "type": "input"},
                                             type="text",
                                             autoComplete="off",
-                                            style={"width": "55px", "textAlign": "right"},
+                                            style={"width": "3.4375rem", "textAlign": "right"},
                                             value="", #Intentionally blank for edit
                                         ),
                                         dbc.InputGroupText("h"),
                                     ],
-                                    style={"display": "inline-flex", "width": "auto", "marginRight": "20px"},
+                                    style={"display": "inline-flex", "width": "auto", "marginRight": "1.25rem"},
                                 ),
                                 dbc.InputGroup(
                                     [
@@ -129,7 +129,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                                             id={"page": page, "group": group, "name": "duration-minutes", "type": "input"},
                                             type="text",
                                             autoComplete="off",
-                                            style={"width": "55px", "textAlign": "right"},
+                                            style={"width": "3.4375rem", "textAlign": "right"},
                                             value="", #Intentionally blank for edit
                                         ),
                                         dbc.InputGroupText("m"),
@@ -163,7 +163,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                         value=values["category_id"],
                     ),
                     col_width=6,
-                    label_px=110,
+                    label_width="6.875rem",
                 ),
             ]
         ),
@@ -187,7 +187,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                         ),
                     ],
                     col_width=6,
-                    label_px=110,
+                    label_width="6.875rem",
                 ),
             ]
         ),
@@ -204,7 +204,7 @@ def create_task_inputs(page, user_id, store_data=None, values=None):
                         value=values["activity"],
                     ),
                     col_width=6,
-                    label_px=110,
+                    label_width="6.875rem",
                 ),
             ]
         ),

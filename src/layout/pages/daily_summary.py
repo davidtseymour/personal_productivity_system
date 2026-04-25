@@ -34,7 +34,7 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
                     dbc.Col(
                         dcc.Graph(
                             figure=make_stacked_subcategory_fig(combined),
-                            style={"height": "330px"},
+                            style={"height": "20.625rem"},
                             config={"displayModeBar": False},
                             id={"page": page, "name": "subcategory-graph", "type": "graph"},
                         ),
@@ -44,7 +44,7 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
                         html.Div(
                             df_to_daily_html_table(combined, fmt_h_m),
                             className="d-flex flex-column",
-                            style={"width": "320px", "height": "330px"},
+                            style={"width": "20rem", "height": "20.625rem"},
                             id={"page": page, "name": "subcategory-table", "type": "table"},
                         ),
                         width="auto",

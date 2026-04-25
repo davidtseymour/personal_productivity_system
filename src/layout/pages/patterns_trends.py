@@ -70,7 +70,7 @@ def create_trends_page(user_id):
                         dcc.Graph(
                             id="productivity-graph",
                             figure=fig_cat,
-                            style={"height": "330px"},
+                            style={"height": "20.625rem"},
                             config={"staticPlot": True},
                         ),
                         width=12,
@@ -86,7 +86,7 @@ def create_trends_page(user_id):
                         dcc.Graph(
                             id="ts-graph",
                             figure=fig_ts,
-                            style={"height": "330px"},
+                            style={"height": "20.625rem"},
                         ),
                         width=12,
                     )

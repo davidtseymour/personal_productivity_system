@@ -36,7 +36,7 @@ def create_daily_reflection() -> dbc.Container:
                                 type="number",
                                 min=1,
                                 max=10,
-                                style={"width": "80px"},
+                                style={"width": "5rem"},
                             ),
                         ],
                         width=4,

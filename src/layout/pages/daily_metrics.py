@@ -13,7 +13,7 @@ def create_daily_metrics(user_id) -> dbc.Form:
 
     page = "daily-metrics"
 
-    def input_(name: str, placeholder: str, width: str = "140px") -> dbc.Input:
+    def input_(name: str, placeholder: str, width: str = "8.75rem") -> dbc.Input:
         return dbc.Input(
             id={"page": page, "name": name, "type": "input"},
             type="text",
@@ -34,8 +34,8 @@ def create_daily_metrics(user_id) -> dbc.Form:
         for m in norm_metric_list
     ]
 
-    # Label width (140px) + input width (140px) + gap (~8px)
-    date_input_width_px = 288
+    # Label width (8.75rem) + input width (8.75rem) + gap (0.5rem)
+    date_input_width = "18rem"
     if len(rows) == 0:
         return dbc.Form(
             [
@@ -57,7 +57,7 @@ def create_daily_metrics(user_id) -> dbc.Form:
                                 type="date",
                                 value=date.today().isoformat(),
                                 placeholder="Date",
-                                style={"width": f"{date_input_width_px}px"},
+                                style={"width": date_input_width},
                             ),
                         ]
                     )
@@ -70,7 +70,7 @@ def create_daily_metrics(user_id) -> dbc.Form:
                     label,
                     control,
                     col_width=12,
-                    label_px=140,
+                    label_width="8.75rem",
                     className="mb-3",
                 )
                 for label, control in rows

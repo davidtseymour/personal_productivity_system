@@ -22,7 +22,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             placeholder="Select goal theme...",
                         ),
                         col_width=4,
-                        label_px=110,
+                        label_width="6.875rem",
                     ),
                     dbc.Col(
                         [
@@ -63,7 +63,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             dbc.Textarea(
                                 id={"page": page, "name": "three-month-goals", "type": "textarea"},
                                 placeholder="What are your goals for this quarter?",
-                                style={"minHeight": "140px"},
+                                style={"minHeight": "8.75rem"},
                             ),
                         ],
                         width=8,
@@ -79,7 +79,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             dbc.Textarea(
                                 id={"page": page, "name": "one-month-goals", "type": "textarea"},
                                 placeholder="What are your goals for this month?",
-                                style={"minHeight": "140px"},
+                                style={"minHeight": "8.75rem"},
                             ),
                         ],
                         width=8,
@@ -95,7 +95,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             dbc.Textarea(
                                 id={"page": page, "name": "this-weeks-goals", "type": "textarea"},
                                 placeholder="What are your goals for this week?",
-                                style={"minHeight": "180px"},
+                                style={"minHeight": "11.25rem"},
                             ),
                         ],
                         width=4,
@@ -105,7 +105,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             dbc.Label("Last week's goals"),
                             dbc.Textarea(
                                 id={"page": page, "name": "last-weeks-goals", "type": "textarea"},
-                                style={"minHeight": "180px"},
+                                style={"minHeight": "11.25rem"},
                             ),
                         ],
                         width=4,
@@ -143,7 +143,7 @@ def create_goals(user_id: str) -> dbc.Container:
                                             autoFocus=True,
                                         ),
                                         col_width=12,
-                                        label_px=110,
+                                        label_width="6.875rem",
                                     ),
                                 ]
                             ),

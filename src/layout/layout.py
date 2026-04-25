@@ -38,7 +38,7 @@ def create_layout() -> dbc.Container:
                         html.Div(
                             create_left_navigation(),
                             className="h-100 d-flex flex-column",
-                            style={"width": "240px"},
+                            style={"width": "15rem"},
                         ),
                         width="auto",
                         className="bg-light border-end h-100",
@@ -59,7 +59,7 @@ def create_layout() -> dbc.Container:
                         html.Div(
                             create_right_sidebar(),
                             className="h-100 d-flex flex-column",
-                            style={"width": "320px"},
+                            style={"width": "20rem"},
                         ),
                         width="auto",
                         className="p-2 h-100",

@@ -36,12 +36,12 @@ def labeled_control_row(
     control_component,
     *,
     col_width=4,
-    label_px: int = 110,
+    label_width: str = "6.875rem",
     gap: str = "0.5rem",
     className: str = "mb-3",
 ):
     """
-    One-line label + control, pixel-precise label width, Bootstrap col width preserved.
+    One-line label + control with fixed label width, Bootstrap col width preserved.
 
     Parameters
     ----------
@@ -51,8 +51,8 @@ def labeled_control_row(
         Any Dash component (dcc.Dropdown, dbc.Input, etc.).
     col_width : int | str
         Bootstrap column width (e.g., 4) or "auto".
-    label_px : int
-        Fixed pixel width for label area.
+    label_width : str
+        Fixed CSS width for label area (e.g., "6.875rem").
     gap : str
         CSS gap between label and control.
     className : str
@@ -64,7 +64,7 @@ def labeled_control_row(
                 dbc.Label(
                     label_text,
                     className="mb-0",
-                    style={"width": f"{label_px}px", "flexShrink": 0},
+                    style={"width": label_width, "flexShrink": 0},
                 ),
                 html.Div(
                     control_component,
