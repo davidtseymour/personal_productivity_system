@@ -39,9 +39,10 @@ def register_daily_task_log_callbacks(app: Dash) -> None:
         Output({"page": page, "name": "task-table", "type": "table"}, "children"),
         Input({"page": page, "name": "date", "type": "date-input"}, "value"),
         Input("user-id", "data"),
+        Input("task-nav-update-store", "data"),
         Input("last-update", "data"),
     )
-    def update_daily_task_log_table(selected_date, user_id, _last_update):
+    def update_daily_task_log_table(selected_date, user_id, _task_reload, _last_update):
         if not user_id or not selected_date:
             raise PreventUpdate
 

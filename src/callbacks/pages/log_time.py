@@ -46,7 +46,6 @@ def register_log_time_callbacks(app: Dash) -> None:
             Output({"page": page, "group": group, "name": "task-subcategory", "type": "input"}, "value"),
             Output({"page": page, "group": group, "name": "task-activity", "type": "input"}, "value"),
             Output({"page": page, "group": group, "name": "task-notes", "type": "textarea"}, "value"),
-            Output("task-nav-update-store", "data"),
             Output("last-update-log-time", "data"),
         ],
         [
@@ -121,7 +120,6 @@ def register_log_time_callbacks(app: Dash) -> None:
                 no_update,
                 no_update,
                 no_update,
-                no_update,
             )
 
         if source_name not in {"save-task", "clear-task"}:
@@ -182,7 +180,7 @@ def register_log_time_callbacks(app: Dash) -> None:
 
                 display_t = toast(toast_type)
 
-                return *update_toast(display_t), *(no_update,) * 10, no_update, no_update
+                return *update_toast(display_t), *(no_update,) * 10, no_update
 
             category = get_category_from_id(user_id, category_id_int)
 
@@ -230,7 +228,7 @@ def register_log_time_callbacks(app: Dash) -> None:
             "",  # notes
         )
 
-        return (*toast_return, *cleared_values, "data_changed", update_event)
+        return (*toast_return, *cleared_values, update_event)
 
     # ---------- Validation callback ----------
     @app.callback(

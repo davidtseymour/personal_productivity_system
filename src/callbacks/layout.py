@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dash import Dash, Input, Output, html
+from dash import Dash, Input, Output, ctx, html, no_update
 import dash_bootstrap_components as dbc
 
 from src.layout.pages.daily_metrics import create_daily_metrics
@@ -53,6 +53,7 @@ def register_layout_callbacks(app: Dash) -> None:
 
     @app.callback(
         Output("last-update", "data"),
+        Output("task-nav-update-store", "data"),
         [
             Input("last-update-edit", "data"),
             Input("last-update-delete", "data"),
@@ -63,4 +64,7 @@ def register_layout_callbacks(app: Dash) -> None:
     )
     def bump_master_refresh(*_):
         # always change -> guarantees downstream refresh triggers
-        return datetime.now().isoformat()
+        refresh_token = datetime.now().isoformat()
+        if ctx.triggered_id in {"last-update-edit", "last-update-delete", "last-update-log-time"}:
+            return refresh_token, refresh_token
+        return refresh_token, no_update
