@@ -119,7 +119,7 @@ def register_navigation_callbacks(app: Dash) -> None:
         Output("edit-task-id", "data"),
         Output("last-update-edit", "data"),
         [
-            Input({"page": "nav", "type": "edit-task", "task_id": ALL}, "n_clicks"),
+            Input({"page": ALL, "type": "edit-task", "task_id": ALL}, "n_clicks"),
             Input({"page": "edit-modal", "name": "cancel", "type": "button"}, "n_clicks"),
             Input({"page": "edit-modal", "name": "save-task", "type": "button"}, "n_clicks"),
         ],
@@ -185,7 +185,7 @@ def register_navigation_callbacks(app: Dash) -> None:
         Output("pending-delete-task-id", "data"),
         Output("last-update-delete", "data"),
         [
-            Input({"page": "nav", "type": "delete-task", "task_id": ALL}, "n_clicks"),
+            Input({"page": ALL, "type": "delete-task", "task_id": ALL}, "n_clicks"),
             Input("confirm-delete", "n_clicks"),
             Input("cancel-delete", "n_clicks"),
         ],

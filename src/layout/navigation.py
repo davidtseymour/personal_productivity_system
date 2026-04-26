@@ -51,6 +51,19 @@ def create_left_navigation() -> html.Div:
                         vertical=True,
                         className="flex-column",
                     ),
+                    html.Div("Manage", className="text-muted fw-semibold mt-3"),
+                    dbc.Nav(
+                        [
+                            dbc.NavLink(
+                                [html.I(className="bi bi-list-task me-2"), "Daily Task Log"],
+                                href="/daily_task_log",
+                                active="exact",
+                                className="py-2",
+                            ),
+                        ],
+                        vertical=True,
+                        className="flex-column",
+                    ),
                     html.Div("Analytics", className="text-muted fw-semibold mt-3"),
                     dbc.Nav(
                         [

@@ -222,6 +222,35 @@ def load_recent_task_data(user_id: str, n: int = 5) -> pd.DataFrame:
     return pd.read_sql(query, con=engine, params={"user_id": user_id, "n": int(n)})
 
 
+def load_tasks_for_day(user_id: str, selected_date: date | str) -> pd.DataFrame:
+    engine = load_sql_engine()
+    query = text(
+        """
+        SELECT
+            td.task_id,
+            td.start_at,
+            td.end_at,
+            td.duration_min,
+            uc.category_name AS category,
+            td.subcategory,
+            td.activity,
+            td.notes
+        FROM task_data td
+        LEFT JOIN user_categories uc
+          ON uc.user_id = td.user_id
+         AND uc.category_id = td.category_id
+        WHERE td.user_id = :user_id
+          AND td.date = :selected_date
+        ORDER BY td.start_at NULLS LAST, td.task_id
+        """
+    )
+    return pd.read_sql(
+        query,
+        con=engine,
+        params={"user_id": user_id, "selected_date": selected_date},
+    )
+
+
 def insert_task(row_dict: dict[str, Any]) -> None:
     engine = load_sql_engine()
     with engine.begin() as conn:

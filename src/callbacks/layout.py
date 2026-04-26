@@ -4,6 +4,7 @@ from dash import Dash, Input, Output, html
 import dash_bootstrap_components as dbc
 
 from src.layout.pages.daily_metrics import create_daily_metrics
+from src.layout.pages.daily_task_log import create_daily_task_log_page
 from src.layout.pages.daily_reflection import create_daily_reflection
 from src.layout.pages.daily_summary import create_daily_summary_page
 from src.layout.pages.goals import create_goals
@@ -23,6 +24,8 @@ def register_layout_callbacks(app: Dash) -> None:
         # Tracking
         if pathname in ("/", "/log_time"): # default log_time
             return create_task_form(user_id)
+        if pathname in ("/daily_task_log", "/daily_tasks"):
+            return create_daily_task_log_page(user_id)
         if pathname == "/daily_metrics":
             return html.Div(create_daily_metrics(user_id))  # pass user_id if needed
         if pathname == "/daily_reflection":
