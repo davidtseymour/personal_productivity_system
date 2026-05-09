@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 
 from src.layout.pages.daily_metrics import create_daily_metrics_page
 from src.layout.pages.daily_task_log import create_daily_task_log_page
+from src.layout.pages.task_explorer import create_task_explorer_page
 from src.layout.pages.daily_reflection import create_daily_reflection
 from src.layout.pages.daily_summary import create_daily_summary_page
 from src.layout.pages.goals import create_goals
@@ -26,6 +27,8 @@ def register_layout_callbacks(app: Dash) -> None:
             return create_task_form(user_id)
         if pathname in ("/daily_task_log", "/daily_tasks"):
             return create_daily_task_log_page(user_id)
+        if pathname == "/task_explorer":
+            return create_task_explorer_page(user_id)
         if pathname == "/daily_metrics":
             return create_daily_metrics_page(user_id)
         if pathname == "/daily_reflection":

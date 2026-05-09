@@ -228,6 +228,7 @@ def load_tasks_for_day(user_id: str, selected_date: date | str) -> pd.DataFrame:
         """
         SELECT
             td.task_id,
+            td.category_id,
             td.start_at,
             td.end_at,
             td.duration_min,
@@ -248,6 +249,42 @@ def load_tasks_for_day(user_id: str, selected_date: date | str) -> pd.DataFrame:
         query,
         con=engine,
         params={"user_id": user_id, "selected_date": selected_date},
+    )
+
+
+def load_tasks_for_date_range(
+    user_id: str,
+    start_date: date | str,
+    end_date: date | str,
+) -> pd.DataFrame:
+    engine = load_sql_engine()
+    query = text(
+        """
+        SELECT
+            td.task_id,
+            td.date,
+            td.category_id,
+            td.start_at,
+            td.end_at,
+            td.duration_min,
+            uc.category_name AS category,
+            td.subcategory,
+            td.activity,
+            td.notes
+        FROM task_data td
+        LEFT JOIN user_categories uc
+          ON uc.user_id = td.user_id
+         AND uc.category_id = td.category_id
+        WHERE td.user_id = :user_id
+          AND td.date >= :start_date
+          AND td.date <= :end_date
+        ORDER BY td.date DESC, td.start_at DESC NULLS LAST, td.task_id DESC
+        """
+    )
+    return pd.read_sql(
+        query,
+        con=engine,
+        params={"user_id": user_id, "start_date": start_date, "end_date": end_date},
     )
 
 

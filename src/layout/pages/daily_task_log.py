@@ -31,71 +31,98 @@ def _fmt_duration(value: object) -> str:
     return f"{hours}h {mins_left:02d}m"
 
 
-def render_daily_task_log_table(task_rows: pd.DataFrame | None) -> dbc.Table | html.Small:
+def render_daily_task_log_table(
+    task_rows: pd.DataFrame | None,
+    *,
+    table_page: str = "daily-task-log",
+    show_date: bool = False,
+) -> dbc.Table | html.Small:
     if task_rows is None or task_rows.empty:
-        return html.Small("No tasks logged for the selected day.", className="text-muted px-2")
+        message = (
+            "No tasks match the selected filters."
+            if show_date
+            else "No tasks logged for the selected day."
+        )
+        return html.Small(message, className="text-muted px-2")
 
-    header = html.Thead(
-        html.Tr(
-            [
-                html.Th("Start", style={"width": "88px"}),
-                html.Th("End", style={"width": "88px"}),
-                html.Th("Duration", className="text-end", style={"width": "88px", "paddingRight": "1rem"}),
-                html.Th("Category", style={"paddingLeft": "1rem"}),
-                html.Th("Subcategory"),
-                html.Th("Activity"),
-                html.Th("Notes"),
-                html.Th("Actions", className="text-center align-middle", style={"width": "72px"}),
-            ]
-        ),
+    def _fmt_date(value: object) -> str:
+        if value is None:
+            return ""
+        parsed = pd.to_datetime(value, errors="coerce")
+        if pd.isna(parsed):
+            return ""
+        return parsed.strftime("%Y-%m-%d")
+
+    header_cells = []
+    if show_date:
+        header_cells.append(html.Th("Date", style={"width": "110px"}))
+    header_cells.extend(
+        [
+            html.Th("Start", style={"width": "88px"}),
+            html.Th("End", style={"width": "88px"}),
+            html.Th("Duration", className="text-end", style={"width": "88px", "paddingRight": "1rem"}),
+            html.Th("Category", style={"paddingLeft": "1rem"}),
+            html.Th("Subcategory"),
+            html.Th("Activity"),
+            html.Th("Notes"),
+            html.Th("Actions", className="text-center align-middle", style={"width": "72px"}),
+        ]
     )
+    header = html.Thead(html.Tr(header_cells))
 
     body = html.Tbody(
         [
             html.Tr(
-                [
-                    html.Td(_fmt_time(row.get("start_at")), className="text-muted small"),
-                    html.Td(_fmt_time(row.get("end_at")), className="text-muted small"),
-                    html.Td(
-                        _fmt_duration(row.get("duration_min")),
-                        className="text-end small",
-                        style={"paddingRight": "1rem"},
-                    ),
-                    html.Td((row.get("category") or ""), className="small", style={"paddingLeft": "1rem"}),
-                    html.Td((row.get("subcategory") or ""), className="small"),
-                    html.Td((row.get("activity") or ""), className="small"),
-                    html.Td((row.get("notes") or ""), className="small text-muted"),
-                    html.Td(
-                        html.Div(
-                            [
-                                dbc.Button(
-                                    html.I(className="bi bi-pencil"),
-                                    id={
-                                        "page": "daily-task-log",
-                                        "type": "edit-task",
-                                        "task_id": int(row.get("task_id")),
-                                    },
-                                    className="icon-action-btn daily-task-log-row-action me-1",
-                                    title="Edit task",
-                                    n_clicks=0,
-                                ),
-                                dbc.Button(
-                                    html.I(className="bi bi-trash"),
-                                    id={
-                                        "page": "daily-task-log",
-                                        "type": "delete-task",
-                                        "task_id": int(row.get("task_id")),
-                                    },
-                                    className="icon-action-btn daily-task-log-row-action",
-                                    title="Delete task",
-                                    n_clicks=0,
-                                ),
-                            ],
-                            className="d-flex justify-content-center align-items-center",
+                (
+                    (
+                        [html.Td(_fmt_date(row.get("date")), className="text-muted small")]
+                        if show_date
+                        else []
+                    )
+                    + [
+                        html.Td(_fmt_time(row.get("start_at")), className="text-muted small"),
+                        html.Td(_fmt_time(row.get("end_at")), className="text-muted small"),
+                        html.Td(
+                            _fmt_duration(row.get("duration_min")),
+                            className="text-end small",
+                            style={"paddingRight": "1rem"},
                         ),
-                        className="text-center align-middle",
-                    ),
-                ]
+                        html.Td((row.get("category") or ""), className="small", style={"paddingLeft": "1rem"}),
+                        html.Td((row.get("subcategory") or ""), className="small"),
+                        html.Td((row.get("activity") or ""), className="small"),
+                        html.Td((row.get("notes") or ""), className="small text-muted"),
+                        html.Td(
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        html.I(className="bi bi-pencil"),
+                                        id={
+                                            "page": table_page,
+                                            "type": "edit-task",
+                                            "task_id": int(row.get("task_id")),
+                                        },
+                                        className="icon-action-btn daily-task-log-row-action me-1",
+                                        title="Edit task",
+                                        n_clicks=0,
+                                    ),
+                                    dbc.Button(
+                                        html.I(className="bi bi-trash"),
+                                        id={
+                                            "page": table_page,
+                                            "type": "delete-task",
+                                            "task_id": int(row.get("task_id")),
+                                        },
+                                        className="icon-action-btn daily-task-log-row-action",
+                                        title="Delete task",
+                                        n_clicks=0,
+                                    ),
+                                ],
+                                className="d-flex justify-content-center align-items-center",
+                            ),
+                            className="text-center align-middle",
+                        ),
+                    ]
+                )
             )
             for _, row in task_rows.iterrows()
         ]

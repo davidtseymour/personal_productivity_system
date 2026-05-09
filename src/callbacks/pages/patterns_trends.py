@@ -33,9 +33,6 @@ def register_trends_callbacks(app: Dash) -> None:
         task_summary_store,
         category_dict,
     ):
-
-
-        # Default day range (if nothing triggered)
         default_days = 1
         button_to_days = {
             "btn-1": 1,

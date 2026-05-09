@@ -53,6 +53,34 @@ button.btn.icon-action-btn:active {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
 
+/* Task Explorer weekday filter buttons: action-button footprint + visible selected state */
+button.btn.icon-action-btn.task-explorer-weekday-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* "Off" matches date-cycler normal button ("light") */
+button.btn.icon-action-btn.task-explorer-weekday-btn,
+button.btn.icon-action-btn.task-explorer-weekday-btn:hover,
+button.btn.icon-action-btn.task-explorer-weekday-btn:focus,
+button.btn.icon-action-btn.task-explorer-weekday-btn:focus-visible {
+  background-color: var(--bs-btn-bg, var(--bs-light)) !important;
+  color: var(--bs-btn-color, var(--bs-body-color)) !important;
+  border: 1px solid var(--bs-btn-border-color, var(--bs-border-color)) !important;
+}
+
+/* "On" matches date-cycler highlighted/pressed light button */
+button.btn.icon-action-btn.task-explorer-weekday-btn.active,
+button.btn.icon-action-btn.task-explorer-weekday-btn.active:hover,
+button.btn.icon-action-btn.task-explorer-weekday-btn.active:focus,
+button.btn.icon-action-btn.task-explorer-weekday-btn.active:focus-visible,
+button.btn.icon-action-btn.task-explorer-weekday-btn:active {
+  background-color: var(--bs-btn-active-bg, #d3d4d5) !important;
+  color: var(--bs-btn-active-color, var(--bs-body-color)) !important;
+  border: 1px solid var(--bs-btn-active-border-color, #c6c7c8) !important;
+}
+
 /* Hide actions by default */
 .task-row .row-action {
   opacity: 0;

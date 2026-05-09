@@ -6,6 +6,7 @@ from src.config.helpers import create_config_dic
 
 from src.callbacks.layout import register_layout_callbacks
 from src.callbacks.pages.daily_task_log import register_daily_task_log_callbacks
+from src.callbacks.pages.task_explorer import register_task_explorer_callbacks
 from src.callbacks.pages.log_time import register_log_time_callbacks
 from src.callbacks.pages.daily_metrics import register_daily_metrics_callbacks
 from src.callbacks.pages.daily_summary import register_daily_summary_callbacks
@@ -35,6 +36,7 @@ app.layout = create_layout()
 # Register callbacks
 register_layout_callbacks(app)
 register_daily_task_log_callbacks(app)
+register_task_explorer_callbacks(app)
 register_log_time_callbacks(app)
 register_daily_metrics_callbacks(app)
 register_daily_summary_callbacks(app)

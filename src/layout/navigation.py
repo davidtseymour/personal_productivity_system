@@ -60,6 +60,12 @@ def create_left_navigation() -> html.Div:
                                 active="exact",
                                 className="py-2",
                             ),
+                            dbc.NavLink(
+                                [html.I(className="bi bi-funnel me-2"), "Task Explorer"],
+                                href="/task_explorer",
+                                active="exact",
+                                className="py-2",
+                            ),
                         ],
                         vertical=True,
                         className="flex-column",
