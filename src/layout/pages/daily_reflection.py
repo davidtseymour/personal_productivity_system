@@ -4,44 +4,40 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 from src.layout.common_components import create_toast
+from src.layout.shared_components.components import date_cycler_row, labeled_fixed_width_control_row
 
 
 def create_daily_reflection() -> dbc.Container:
     page = "daily-reflection"
+    selected_date = date.today().isoformat()
 
     return dbc.Container(
         [
-            dbc.Row(dbc.Col(html.H5("Daily Reflection"))),
-
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label("Date"),
-                            dbc.Input(
-                                id={"page": page, "name": "date", "type": "date-input"},
-                                type="date",
-                                value=date.today().isoformat(),
-                                placeholder="Date",
-                            ),
-                        ],
-                        width=4,
-                    ),
-
-                    dbc.Col(
-                        [
-                            dbc.Label("Intentionality score (1–10)"),
-                            dbc.Input(
-                                id={"page": page, "name": "intentionality-score", "type": "input"},
-                                type="number",
-                                min=1,
-                                max=10,
-                                style={"width": "5rem"},
-                            ),
-                        ],
-                        width=4,
-                    ),
-                ],
+            dbc.Row(dbc.Col(html.H5("Daily Reflection")), className="mb-2"),
+            date_cycler_row(
+                page,
+                selected_date,
+                prev_name="prev-day",
+                next_name="next-day",
+                prev_tooltip="Go to previous day",
+                next_tooltip="Go to next day",
+            ),
+            labeled_fixed_width_control_row(
+                "Intentionality Score",
+                dbc.Input(
+                    id={"page": page, "name": "intentionality-score", "type": "input"},
+                    type="number",
+                    min=1,
+                    max=10,
+                    step=1,
+                    placeholder="1-10",
+                    style={"width": "5rem", "textAlign": "right", "marginLeft": "auto"},
+                    autoComplete="off",
+                    debounce=True,
+                ),
+                col_width=12,
+                control_width="8.75rem",
+                label_width="8.75rem",
                 className="mb-3",
             ),
 

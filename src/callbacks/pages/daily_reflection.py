@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
-from dash import Dash, Input, Output, State, no_update
+from dash import Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.daily_reflection import load_daily_reflection, upsert_daily_reflection
@@ -9,6 +9,31 @@ from src.layout.toasts import hide_toast
 
 def register_daily_reflection_callbacks(app: Dash) -> None:
     page = "daily-reflection"
+
+    @app.callback(
+        Output({"page": page, "name": "date", "type": "date-input"}, "value"),
+        Input({"page": page, "name": "prev-day", "type": "button"}, "n_clicks"),
+        Input({"page": page, "name": "next-day", "type": "button"}, "n_clicks"),
+        State({"page": page, "name": "date", "type": "date-input"}, "value"),
+        prevent_initial_call=True,
+    )
+    def cycle_daily_reflection_date(_prev_clicks, _next_clicks, selected_date):
+        triggered = ctx.triggered_id
+        if not isinstance(triggered, dict):
+            raise PreventUpdate
+
+        try:
+            base_date = date.fromisoformat(selected_date) if selected_date else date.today()
+        except (TypeError, ValueError):
+            base_date = date.today()
+
+        source_name = triggered.get("name")
+        if source_name == "prev-day":
+            return (base_date - timedelta(days=1)).isoformat()
+        if source_name == "next-day":
+            return (base_date + timedelta(days=1)).isoformat()
+
+        raise PreventUpdate
 
     # ---------- SAVE ----------
     @app.callback(
