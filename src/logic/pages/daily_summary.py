@@ -1,3 +1,4 @@
+import heapq
 from datetime import date
 from typing import Any, Callable
 
@@ -11,6 +12,7 @@ from src.data_access.db import (
     load_category_id_to_name,
     load_metrics_base_for_daily_summary,
     load_task_base_for_daily_summary,
+    load_tasks_for_day,
 )
 from src.helpers.general import fmt_h_m
 from src.layout.common_components import empty_fig
@@ -142,6 +144,209 @@ def get_today_subcategory_df(user_id: str) -> pd.DataFrame:
     return get_subcategory_df_for_date(user_id, date.today())
 
 
+def get_task_timeline_df_for_date(user_id: str, summary_date: str | date) -> pd.DataFrame:
+    task_rows = load_tasks_for_day(user_id, selected_date=summary_date)
+    if task_rows is None or task_rows.empty:
+        return pd.DataFrame()
+
+    df = task_rows.copy()
+    df["start_at"] = pd.to_datetime(df["start_at"], errors="coerce")
+    df["end_at"] = pd.to_datetime(df["end_at"], errors="coerce")
+    df = df.dropna(subset=["start_at", "end_at"])
+    df = df[df["end_at"] > df["start_at"]].copy()
+
+    if df.empty:
+        return pd.DataFrame()
+
+    df["category"] = df["category"].fillna("Uncategorized")
+    df["subcategory"] = df["subcategory"].fillna("")
+    df["activity"] = df["activity"].fillna("")
+    df["duration_min"] = df["duration_min"].fillna(0).astype(int)
+
+    return df.sort_values(["start_at", "task_id"]).reset_index(drop=True)
+
+def _assign_overlap_tracks(task_rows: pd.DataFrame) -> tuple[list[int], int]:
+    intervals: list[tuple[pd.Timestamp, pd.Timestamp, int]] = []
+    for idx, row in task_rows.iterrows():
+        intervals.append(
+            (
+                pd.Timestamp(row["start_at"]),
+                pd.Timestamp(row["end_at"]),
+                int(idx),
+            )
+        )
+
+    intervals.sort(key=lambda x: (x[0], x[1], x[2]))
+
+    active: list[tuple[pd.Timestamp, int]] = []
+    free_tracks: list[int] = []
+    track_by_idx: dict[int, int] = {}
+    next_track = 0
+
+    for start_at, end_at, idx in intervals:
+        while active and active[0][0] <= start_at:
+            _, freed_track = heapq.heappop(active)
+            heapq.heappush(free_tracks, freed_track)
+
+        if free_tracks:
+            track = heapq.heappop(free_tracks)
+        else:
+            track = next_track
+            next_track += 1
+
+        track_by_idx[idx] = track
+        heapq.heappush(active, (end_at, track))
+
+    tracks = [track_by_idx[i] for i in range(len(task_rows))]
+    return tracks, next_track
+
+
+def _overlap_count_per_task(task_rows: pd.DataFrame) -> list[int]:
+    if task_rows.empty:
+        return []
+
+    starts = [pd.Timestamp(v) for v in task_rows["start_at"].tolist()]
+    ends = [pd.Timestamp(v) for v in task_rows["end_at"].tolist()]
+    overlap_counts: list[int] = []
+
+    for idx, (start_at, end_at) in enumerate(zip(starts, ends)):
+        overlap_count = 0
+        for other_idx, (other_start, other_end) in enumerate(zip(starts, ends)):
+            if idx == other_idx:
+                continue
+            if other_start < end_at and other_end > start_at:
+                overlap_count += 1
+        overlap_counts.append(overlap_count)
+
+    return overlap_counts
+
+
+def make_task_timeline_fig(
+    task_rows: pd.DataFrame | None,
+    summary_date: str | date,
+) -> go.Figure:
+    if task_rows is None or task_rows.empty:
+        return empty_fig("No timestamped tasks logged for this day.")
+
+    day_start = pd.to_datetime(summary_date).normalize()
+
+    df = task_rows.copy().reset_index(drop=True)
+    tracks, track_count = _assign_overlap_tracks(df)
+    df["track"] = tracks
+    df["overlap_count"] = _overlap_count_per_task(df)
+    lane_names = {i: f"_lane_{i}" for i in range(track_count)}
+    timeline_line_width = 70
+
+    default_axis_start = day_start + pd.Timedelta(hours=6)
+    default_axis_end = day_start + pd.Timedelta(hours=22)
+    earliest_task_start = pd.Timestamp(df["start_at"].min()).floor("h")
+    latest_task_end = pd.Timestamp(df["end_at"].max()).ceil("h")
+    axis_start = min(default_axis_start, earliest_task_start)
+    axis_end = max(default_axis_end, latest_task_end)
+    if axis_end <= axis_start:
+        axis_end = axis_start + pd.Timedelta(hours=1)
+
+    palette = [
+        "#4E79A7",
+        "#59A14F",
+        "#E15759",
+        "#F28E2B",
+        "#76B7B2",
+        "#EDC948",
+        "#B07AA1",
+        "#9C755F",
+        "#FF9DA7",
+    ]
+    categories = df["category"].drop_duplicates().tolist()
+    color_map = {name: palette[i % len(palette)] for i, name in enumerate(categories)}
+
+    fig = go.Figure()
+    legend_seen: set[str] = set()
+
+    for _, row in df.iterrows():
+        category = str(row["category"])
+        lane = lane_names.get(int(row["track"]), "Tasks")
+        start_at = pd.to_datetime(row["start_at"])
+        end_at = pd.to_datetime(row["end_at"])
+        overlap_count = max(int(row.get("overlap_count", 0)), 0)
+
+        shrink_fraction = 1.0 / (3.0 + float(overlap_count))
+        duration = end_at - start_at
+        shrink_delta = duration * shrink_fraction
+        draw_start = start_at + (shrink_delta / 2)
+        draw_end = end_at - (shrink_delta / 2)
+        if draw_end <= draw_start:
+            draw_start = start_at
+            draw_end = end_at
+
+        showlegend = category not in legend_seen
+        legend_seen.add(category)
+
+        fig.add_trace(
+            go.Scatter(
+                x=[draw_start, draw_end],
+                y=[lane, lane],
+                mode="lines",
+                name=category,
+                legendgroup=category,
+                showlegend=showlegend,
+                hoverinfo="skip",
+                line=dict(
+                    color=color_map.get(category, "#4E79A7"),
+                    width=timeline_line_width,
+                ),
+            )
+        )
+
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=34),
+        template="plotly_white",
+        plot_bgcolor="#f8f9fa",
+        hovermode=False,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.20,
+            xanchor="left",
+            x=0.0,
+            title_text="",
+        ),
+    )
+
+    lane_order = [lane_names[i] for i in range(track_count - 1, -1, -1)]
+    lane_min = -0.5
+    lane_max = track_count - 0.5
+    fig.update_yaxes(
+        title_text="",
+        categoryorder="array",
+        categoryarray=lane_order,
+        range=[lane_min, lane_max],
+        showticklabels=False,
+        ticks="",
+        showgrid=False,
+        zeroline=False,
+        showline=True,
+        linecolor="#dee2e6",
+        linewidth=1,
+        mirror=True,
+        ticklabelstandoff=3,
+    )
+    fig.update_xaxes(
+        title_text="Time",
+        range=[axis_start, axis_end],
+        dtick=2 * 60 * 60 * 1000,
+        tickformat="%-I %p",
+        showline=True,
+        linecolor="#dee2e6",
+        linewidth=1,
+        mirror=True,
+        zeroline=False,
+    )
+
+    return fig
+
+
 def make_stacked_subcategory_fig(df: pd.DataFrame | None) -> go.Figure:
     """
     Horizontal stacked bar chart:
@@ -183,8 +388,8 @@ def make_stacked_subcategory_fig(df: pd.DataFrame | None) -> go.Figure:
     fig = go.Figure()
 
     # Same fill for every subcategory segment
-    fill_color = "skyblue"      # bootstrap-ish gray; change if you want
-    sep_color = "#ffffff"       # white separators; use "#dee2e6" if your background is not white
+    fill_color = "skyblue"
+    sep_color = "#ffffff"
 
 
     for subcat in wide.columns:
@@ -200,7 +405,7 @@ def make_stacked_subcategory_fig(df: pd.DataFrame | None) -> go.Figure:
                 showlegend=False,
                 marker=dict(
                     color=fill_color,
-                    line=dict(color=sep_color, width=1),  # the separators
+                    line=dict(color=sep_color, width=1),
                 ),
                 customdata=x_fmt,
                 hovertemplate=(

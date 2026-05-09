@@ -8,7 +8,9 @@ from src.layout.shared_components.components import date_cycler_row
 from src.logic.pages.daily_summary import (
     df_to_daily_html_table,
     get_subcategory_df_for_date,
+    get_task_timeline_df_for_date,
     make_stacked_subcategory_fig,
+    make_task_timeline_fig,
 )
 
 
@@ -17,6 +19,7 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
     page = "daily-summary"
     selected_date = date.today().isoformat()
     combined = get_subcategory_df_for_date(user_id, selected_date)
+    task_rows = get_task_timeline_df_for_date(user_id, selected_date)
 
     return dbc.Container(
         [
@@ -51,7 +54,20 @@ def create_daily_summary_page(user_id: str) -> dbc.Container:
                     ),
                 ]
             ),
-            # TODO: add the timeline bar when ready
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=make_task_timeline_fig(task_rows, selected_date),
+                            style={"height": "10.3125rem"},
+                            config={"displayModeBar": False},
+                            id={"page": page, "name": "timeline-graph", "type": "graph"},
+                        ),
+                        width=12,
+                    ),
+                ],
+                className="mt-3",
+            ),
         ],
         fluid=True,
         className="p-0",

@@ -7,7 +7,9 @@ from src.helpers.general import fmt_h_m
 from src.logic.pages.daily_summary import (
     df_to_daily_html_table,
     get_subcategory_df_for_date,
+    get_task_timeline_df_for_date,
     make_stacked_subcategory_fig,
+    make_task_timeline_fig,
 )
 
 
@@ -42,6 +44,7 @@ def register_daily_summary_callbacks(app: Dash) -> None:
     @app.callback(
         Output({"page": page, "name": "subcategory-graph", "type": "graph"}, "figure"),
         Output({"page": page, "name": "subcategory-table", "type": "table"}, "children"),
+        Output({"page": page, "name": "timeline-graph", "type": "graph"}, "figure"),
         Input({"page": page, "name": "date", "type": "date-input"}, "value"),
         Input("user-id", "data"),
         Input("last-update", "data"),
@@ -52,6 +55,11 @@ def register_daily_summary_callbacks(app: Dash) -> None:
             raise PreventUpdate
 
         combined = get_subcategory_df_for_date(user_id, selected_date)
+        task_rows = get_task_timeline_df_for_date(user_id, selected_date)
         table = df_to_daily_html_table(combined, fmt_h_m)
 
-        return make_stacked_subcategory_fig(combined), (table if table is not None else html.Div())
+        return (
+            make_stacked_subcategory_fig(combined),
+            (table if table is not None else html.Div()),
+            make_task_timeline_fig(task_rows, selected_date),
+        )
