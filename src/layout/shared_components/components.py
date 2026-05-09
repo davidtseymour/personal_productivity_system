@@ -48,7 +48,13 @@ def date_controlled_row(page: str, selected_date: str, className: str = "mb-3") 
                 id={"page": page, "name": "date", "type": "date-input"},
                 type="date",
                 value=selected_date,
+                style={
+                    "width": "calc(100% + 1.125rem)",
+                    "marginLeft": "-1.125rem",
+                },
             ),
+            control_width="8.75rem",
+            label_width="8.75rem",
             className=className,
         )
     )
@@ -115,5 +121,5 @@ def date_cycler_row(
                 className="d-flex align-items-center",
             ),
         ],
-        className="g-2 align-items-center mb-2",
+        className="g-2 align-items-center mb-4",
     )

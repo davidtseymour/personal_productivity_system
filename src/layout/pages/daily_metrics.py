@@ -5,13 +5,13 @@ import dash_bootstrap_components as dbc
 
 from src.data_access.db import get_daily_metrics_definitions
 from src.layout.common_components import create_toast, labeled_control_row
+from src.layout.shared_components.components import date_cycler_row
 from src.logic.pages.daily_metric import metric_placeholder, normalize_metric_definitions
 
 
-def create_daily_metrics(user_id: str) -> dbc.Form:
-    # - determine whether layout should be different for different users (probably yes)
-
+def create_daily_metrics_page(user_id: str) -> dbc.Container:
     page = "daily-metrics"
+    selected_date = date.today().isoformat()
 
     def input_(name: str, placeholder: str, width: str = "8.75rem") -> dbc.Input:
         return dbc.Input(
@@ -34,37 +34,13 @@ def create_daily_metrics(user_id: str) -> dbc.Form:
         for m in norm_metric_list
     ]
 
-    # Label width (8.75rem) + input width (8.75rem) + gap (0.5rem)
-    date_input_width = "18rem"
     if len(rows) == 0:
-        return dbc.Form(
-            [
-                dbc.Row(dbc.Col(html.H5("Daily Metrics"))),
-                dbc.Row(dbc.Col(html.Small("No active metrics.", className="text-muted"))),
-            ])
-
-    return dbc.Form(
-        [
-            dbc.Row(dbc.Col(html.H5("Daily Metrics"))),
-
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label("Date"),
-                            dbc.Input(
-                                id={"page": page, "name": "date", "type": "date-input"},
-                                type="date",
-                                value=date.today().isoformat(),
-                                placeholder="Date",
-                                style={"width": date_input_width},
-                            ),
-                        ]
-                    )
-                ],
-                className="mb-4",
-            ),
-
+        body_children = [
+            dbc.Row(dbc.Col(html.Small("No active metrics.", className="text-muted"))),
+            create_toast(page, "save-metrics", "Daily Metrics", icon="success"),
+        ]
+    else:
+        body_children = [
             *[
                 labeled_control_row(
                     label,
@@ -87,4 +63,24 @@ def create_daily_metrics(user_id: str) -> dbc.Form:
             ),
             create_toast(page, "save-metrics", "Daily Metrics", icon="success"),
         ]
+
+    return dbc.Container(
+        [
+            dbc.Row(dbc.Col(html.H5("Daily Metrics")), className="mb-2"),
+            date_cycler_row(
+                page,
+                selected_date,
+                prev_name="prev-day",
+                next_name="next-day",
+                prev_tooltip="Go to previous day",
+                next_tooltip="Go to next day",
+            ),
+            *body_children,
+        ],
+        fluid=True,
+        className="p-0",
     )
+
+
+def create_daily_metrics(user_id: str) -> dbc.Container:
+    return create_daily_metrics_page(user_id)

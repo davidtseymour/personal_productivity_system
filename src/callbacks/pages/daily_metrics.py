@@ -1,4 +1,5 @@
 import re
+from datetime import date, timedelta
 from typing import Any
 
 from dash import ALL, Dash, Input, Output, State, ctx
@@ -85,6 +86,33 @@ def _normalize_metric_value(raw: Any, spec: dict[str, Any]) -> float | int | Non
 
 
 def register_daily_metrics_callbacks(app: Dash) -> None:
+    page = "daily-metrics"
+
+    @app.callback(
+        Output({"page": page, "name": "date", "type": "date-input"}, "value"),
+        Input({"page": page, "name": "prev-day", "type": "button"}, "n_clicks"),
+        Input({"page": page, "name": "next-day", "type": "button"}, "n_clicks"),
+        State({"page": page, "name": "date", "type": "date-input"}, "value"),
+        prevent_initial_call=True,
+    )
+    def cycle_daily_metrics_date(_prev_clicks, _next_clicks, selected_date):
+        triggered = ctx.triggered_id
+        if not isinstance(triggered, dict):
+            raise PreventUpdate
+
+        try:
+            base_date = date.fromisoformat(selected_date) if selected_date else date.today()
+        except (TypeError, ValueError):
+            base_date = date.today()
+
+        source_name = triggered.get("name")
+        if source_name == "prev-day":
+            return (base_date - timedelta(days=1)).isoformat()
+        if source_name == "next-day":
+            return (base_date + timedelta(days=1)).isoformat()
+
+        raise PreventUpdate
+
     @app.callback(
         Output("daily-metrics-specs", "data"),
         Input("user-id", "data"),
@@ -96,34 +124,35 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
 
     @app.callback(
         Output(
-            {"page": "daily-metrics", "name": ALL, "type": "input"},
+            {"page": page, "name": ALL, "type": "input"},
             "value"
         ),
         Input(
-            {"page": "daily-metrics", "name": "date", "type": "date-input"},
+            {"page": page, "name": "date", "type": "date-input"},
             "value"
         ),
         Input(
-            {"page": "daily-metrics", "name": ALL, "type": "input"},
+            {"page": page, "name": ALL, "type": "input"},
             "value"
         ),
         Input("user-id", "data"),
         Input("daily-metrics-specs", "data"),
+        Input("last-update-daily-metrics", "data"),
     )
-    def load_metrics_for_date(selected_date, component_values, uuid, metric_specs):
+    def load_metrics_for_date(selected_date, component_values, uuid, metric_specs, _metrics_update):
 
-        if not selected_date:
+        if not uuid or not selected_date:
             raise PreventUpdate
 
         triggered = ctx.triggered_id
         load_from_db = (
-                triggered is None or
-                (isinstance(triggered, dict) and triggered.get("type") == "date-input")
-                or (isinstance(triggered, str) and triggered == "user-id")
+            triggered is None
+            or (isinstance(triggered, dict) and triggered.get("type") == "date-input")
+            or (isinstance(triggered, str) and triggered in {"user-id", "last-update-daily-metrics"})
         )
 
         if load_from_db:
-            current = get_daily_metrics_for_date(selected_date,uuid) or {}
+            current = get_daily_metrics_for_date(selected_date, uuid) or {}
         else:
             # component_values is the list of values for ALL inputs, same order as inputs_list[1]
             in_all_specs = ctx.inputs_list[1]
@@ -138,7 +167,7 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
             validated[key] = _normalize_metric_value(raw, _spec_for(metric_specs, key))
 
         # ---- 3) Build output list once, in output order ----
-        out_specs = ctx.outputs_list # for single Output(ALL,...), this is the list
+        out_specs = ctx.outputs_list  # for single Output(ALL,...), this is the list
         values = []
         for spec in out_specs:
             metric_key = spec["id"]["name"]
@@ -154,15 +183,15 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
 
 
     @app.callback(
-        Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "is_open"),
-        Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "children"),
-        Output({"page": "daily-metrics", "name": "save-metrics", "type": "toast"}, "icon"),
+        Output({"page": page, "name": "save-metrics", "type": "toast"}, "is_open"),
+        Output({"page": page, "name": "save-metrics", "type": "toast"}, "children"),
+        Output({"page": page, "name": "save-metrics", "type": "toast"}, "icon"),
         Output("last-update-daily-metrics", "data"),
-        Input({"page": "daily-metrics", "name": "save-metrics", "type": "button"}, "n_clicks"),
-        State({"page": "daily-metrics", "name": "date", "type": "date-input"}, "value"),
-        State({"page": "daily-metrics", "name": ALL, "type": "input"}, "value"),
+        Input({"page": page, "name": "save-metrics", "type": "button"}, "n_clicks"),
+        State({"page": page, "name": "date", "type": "date-input"}, "value"),
+        State({"page": page, "name": ALL, "type": "input"}, "value"),
         State("daily-metrics-specs", "data"),
-        State("user-id","data"),
+        State("user-id", "data"),
         prevent_initial_call=True,
     )
     def save_metrics(n_clicks, selected_date, all_values, metric_specs, uuid):
@@ -195,7 +224,7 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
 
 
             records.append(
-                {"user_id":uuid,"date": selected_date, "metric_key": metric_key, "value_num": value_num}
+                {"user_id": uuid, "date": selected_date, "metric_key": metric_key, "value_num": value_num}
             )
 
         # Write to DB

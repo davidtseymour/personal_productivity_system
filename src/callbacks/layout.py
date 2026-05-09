@@ -3,7 +3,7 @@ from datetime import datetime
 from dash import Dash, Input, Output, ctx, html, no_update
 import dash_bootstrap_components as dbc
 
-from src.layout.pages.daily_metrics import create_daily_metrics
+from src.layout.pages.daily_metrics import create_daily_metrics_page
 from src.layout.pages.daily_task_log import create_daily_task_log_page
 from src.layout.pages.daily_reflection import create_daily_reflection
 from src.layout.pages.daily_summary import create_daily_summary_page
@@ -27,7 +27,7 @@ def register_layout_callbacks(app: Dash) -> None:
         if pathname in ("/daily_task_log", "/daily_tasks"):
             return create_daily_task_log_page(user_id)
         if pathname == "/daily_metrics":
-            return html.Div(create_daily_metrics(user_id))  # pass user_id if needed
+            return create_daily_metrics_page(user_id)
         if pathname == "/daily_reflection":
             return create_daily_reflection()
         if pathname == "/goals":
