@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 
 from src.data_access.goals import get_goals_themes
 from src.layout.common_components import create_toast, labeled_control_row
-from src.layout.shared_components.components import date_cycler_row
+from src.layout.shared_components.components import date_cycler_row, labeled_fixed_width_control_row
 
 
 def create_goals(user_id: str) -> dbc.Container:
@@ -15,7 +15,7 @@ def create_goals(user_id: str) -> dbc.Container:
     return dbc.Container(
         [
             dcc.Store(id="goals-last-saved-store"),
-            dbc.Row(dbc.Col(html.H5("Goals"), width=12)),
+            dbc.Row(dbc.Col(html.H5("Goals"), width=12), className="mb-2"),
             date_cycler_row(
                 page,
                 selected_date,
@@ -26,15 +26,24 @@ def create_goals(user_id: str) -> dbc.Container:
             ),
             dbc.Row(
                 [
-                    labeled_control_row(
+                    labeled_fixed_width_control_row(
                         "Theme",
-                        dcc.Dropdown(
-                            id={"page": page, "name": "goal-theme", "type": "dropdown"},
-                            options=get_goals_themes(user_id),
-                            placeholder="Select goal theme...",
+                        html.Div(
+                            dcc.Dropdown(
+                                id={"page": page, "name": "goal-theme", "type": "dropdown"},
+                                options=get_goals_themes(user_id),
+                                placeholder="Select goal theme...",
+                                style={"width": "100%"},
+                            ),
+                            style={
+                                "width": "calc(100% + 1.125rem)",
+                                "marginLeft": "-1.125rem",
+                            },
                         ),
-                        col_width=4,
-                        label_width="6.875rem",
+                        control_width="11.25rem",
+                        col_width="auto",
+                        label_width="5.25rem",
+                        className="mb-0",
                     ),
                     dbc.Col(
                         [
@@ -46,7 +55,7 @@ def create_goals(user_id: str) -> dbc.Container:
                                 id={"page": page, "name": "open-add-goal-theme", "type": "button"},
                                 color="light",
                                 size="sm",
-                                className="rounded-circle ms-2",
+                                className="rounded-circle",
                                 style={
                                     "width": "32px",
                                     "height": "32px",
@@ -54,7 +63,6 @@ def create_goals(user_id: str) -> dbc.Container:
                                     "display": "flex",
                                     "alignItems": "center",
                                     "justifyContent": "center",
-                                    "marginTop": "0.2rem",  # tweak to align with dropdown
                                 },
                             ),
                             dbc.Tooltip(
@@ -64,8 +72,11 @@ def create_goals(user_id: str) -> dbc.Container:
                             ),
                         ],
                         width="auto",
+                        className="d-flex align-items-center justify-content-end",
+                        style={"width": "2.5rem", "flexShrink": 0},
                     ),
-                ]
+                ],
+                className="g-2 align-items-center mb-3",
             ),
             dbc.Row(
                 [

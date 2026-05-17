@@ -47,11 +47,11 @@ def validate_time_inputs(
     else:
         h_val = None
 
-    # Validate minutes: numeric integer, 0-59 if provided
+    # Validate minutes: numeric integer, >= 0 if provided
     if minutes not in (None, ""):
         try:
             m_val = int(minutes)
-            if not (0 <= m_val <= 59):
+            if m_val < 0:
                 invalid_minutes = True
         except Exception:
             invalid_minutes = True
@@ -83,14 +83,14 @@ def validate_time_inputs(
             and not invalid_minutes
     ):
         total_minutes = int((end_dt - start_dt).total_seconds() // 60)
-        implied_h = total_minutes // 60
-        implied_m = total_minutes % 60
+        entered_total_minutes = (h_val or 0) * 60 + (m_val or 0)
 
-        # If user supplied either component, enforce equality
-        if h_val is not None and h_val != implied_h:
-            invalid_hours = True
-        if m_val is not None and m_val != implied_m:
-            invalid_minutes = True
+        # If user supplied duration values, enforce total-minute equality
+        if entered_total_minutes != total_minutes:
+            if h_val is not None:
+                invalid_hours = True
+            if m_val is not None:
+                invalid_minutes = True
 
     return (
         invalid_start_date,

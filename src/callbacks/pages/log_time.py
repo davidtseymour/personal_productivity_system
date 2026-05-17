@@ -10,6 +10,37 @@ from src.helpers.update_events import build_update_event
 from src.layout.toasts import hide_toast, toast, update_toast
 from src.logic.pages.log_time import validate_task_fields
 
+
+def _parse_nonnegative_int(raw: str | None) -> int | None:
+    if raw in (None, ""):
+        return None
+    try:
+        value = int(str(raw).strip())
+    except (TypeError, ValueError):
+        return None
+    return value if value >= 0 else None
+
+
+def _normalize_duration_parts(hours_raw: str | None, minutes_raw: str | None) -> tuple[str, str] | None:
+    """
+    If minutes overflow (>= 60), carry into hours and return normalized string values.
+    Returns None when no normalization should be applied.
+    """
+    minutes_val = _parse_nonnegative_int(minutes_raw)
+    if minutes_val is None or minutes_val < 60:
+        return None
+
+    hours_val = _parse_nonnegative_int(hours_raw)
+    if hours_raw not in (None, "") and hours_val is None:
+        return None
+
+    total_minutes = (hours_val or 0) * 60 + minutes_val
+    norm_hours = total_minutes // 60
+    norm_minutes = total_minutes % 60
+
+    return str(norm_hours), f"{norm_minutes:02d}"
+
+
 def register_log_time_callbacks(app: Dash) -> None:
     page = "log-time"
     group = "task-input"
@@ -52,11 +83,11 @@ def register_log_time_callbacks(app: Dash) -> None:
             Input({"page": page, "name": "save-task", "type": "button"}, "n_clicks"),
             Input({"page": page, "name": "clear-task", "type": "button"}, "n_clicks"),
             Input({"page": page, "group": group, "name": "start-date", "type": "input"}, "value"),
+            Input({"page": page, "group": group, "name": "duration-hours", "type": "input"}, "value"),
+            Input({"page": page, "group": group, "name": "duration-minutes", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "start-time", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "end-date", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "end-time", "type": "input"}, "value"),
-            State({"page": page, "group": group, "name": "duration-hours", "type": "input"}, "value"),
-            State({"page": page, "group": group, "name": "duration-minutes", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "task-category", "type": "dropdown"}, "value"),
             State({"page": page, "group": group, "name": "task-subcategory", "type": "input"}, "value"),
             State({"page": page, "group": group, "name": "task-activity", "type": "input"}, "value"),
@@ -69,11 +100,11 @@ def register_log_time_callbacks(app: Dash) -> None:
         nclicks_save,
         nclicks_clear,
         start_date,
+        hours,
+        minutes,
         start_time,
         end_date,
         end_time,
-        hours,
-        minutes,
         category_id,
         subcategory,
         activity,
@@ -113,6 +144,29 @@ def register_log_time_callbacks(app: Dash) -> None:
                 no_update,
                 no_update,
                 no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+            )
+
+        if source_name in {"duration-hours", "duration-minutes"}:
+            normalized_duration = _normalize_duration_parts(hours, minutes)
+            if normalized_duration is None:
+                raise PreventUpdate
+
+            normalized_hours, normalized_minutes = normalized_duration
+            return (
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                normalized_hours,
+                normalized_minutes,
                 no_update,
                 no_update,
                 no_update,

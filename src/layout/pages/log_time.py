@@ -122,6 +122,7 @@ def create_task_inputs(
                                             id={"page": page, "group": group, "name": "duration-hours", "type": "input"},
                                             type="text",
                                             autoComplete="off",
+                                            debounce=True,
                                             style={"width": "3.4375rem", "textAlign": "right"},
                                             value="", #Intentionally blank for edit
                                         ),
@@ -135,6 +136,7 @@ def create_task_inputs(
                                             id={"page": page, "group": group, "name": "duration-minutes", "type": "input"},
                                             type="text",
                                             autoComplete="off",
+                                            debounce=True,
                                             style={"width": "3.4375rem", "textAlign": "right"},
                                             value="", #Intentionally blank for edit
                                         ),

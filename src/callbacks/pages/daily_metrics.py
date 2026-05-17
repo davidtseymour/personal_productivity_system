@@ -2,7 +2,7 @@ import re
 from datetime import date, timedelta
 from typing import Any
 
-from dash import ALL, Dash, Input, Output, State, ctx
+from dash import ALL, Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 from src.data_access.db import (
     get_daily_metrics_definitions,
@@ -85,6 +85,10 @@ def _normalize_metric_value(raw: Any, spec: dict[str, Any]) -> float | int | Non
     return v
 
 
+def _is_blank_metric_value(raw: Any) -> bool:
+    return raw is None or (isinstance(raw, str) and raw.strip() == "")
+
+
 def register_daily_metrics_callbacks(app: Dash) -> None:
     page = "daily-metrics"
 
@@ -127,6 +131,10 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
             {"page": page, "name": ALL, "type": "input"},
             "value"
         ),
+        Output(
+            {"page": page, "name": ALL, "type": "input"},
+            "invalid"
+        ),
         Input(
             {"page": page, "name": "date", "type": "date-input"},
             "value"
@@ -161,25 +169,32 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
                 for idx, spec in enumerate(in_all_specs)
             }
 
-        # ---- 2) Validate/normalize into canonical numeric values ----
-        validated = {}
-        for key, raw in current.items():
-            validated[key] = _normalize_metric_value(raw, _spec_for(metric_specs, key))
-
-        # ---- 3) Build output list once, in output order ----
-        out_specs = ctx.outputs_list  # for single Output(ALL,...), this is the list
         values = []
-        for spec in out_specs:
+        invalids = []
+        in_all_specs = ctx.inputs_list[1]
+        for spec in in_all_specs:
             metric_key = spec["id"]["name"]
-            v = validated.get(metric_key)
             metric_spec = _spec_for(metric_specs, metric_key)
+            raw = current.get(metric_key)
 
+            if _is_blank_metric_value(raw):
+                values.append(None)
+                invalids.append(False)
+                continue
+
+            v = _normalize_metric_value(raw, metric_spec)
+            if v is None:
+                values.append(raw)
+                invalids.append(True)
+                continue
+
+            invalids.append(False)
             if metric_spec.get("is_duration"):
-                values.append(minutes_to_hmm(v) if v is not None else None)
+                values.append(minutes_to_hmm(v))
             else:
                 values.append(v)
 
-        return values
+        return values, invalids
 
 
     @app.callback(
@@ -210,9 +225,26 @@ def register_daily_metrics_callbacks(app: Dash) -> None:
         }
 
         # Validate/normalize to canonical numeric values
+        invalid_metric_labels = []
         validated = {}
         for key, raw in current.items():
-            validated[key] = _normalize_metric_value(raw, _spec_for(metric_specs, key))
+            spec = _spec_for(metric_specs, key)
+            if _is_blank_metric_value(raw):
+                validated[key] = None
+                continue
+
+            value_num = _normalize_metric_value(raw, spec)
+            if value_num is None:
+                invalid_metric_labels.append(spec.get("display_name") or key)
+                continue
+
+            validated[key] = value_num
+
+        if invalid_metric_labels:
+            labels = ", ".join(invalid_metric_labels[:3])
+            if len(invalid_metric_labels) > 3:
+                labels = f"{labels}…"
+            return True, f"Validation error: invalid value for {labels}.", "danger", no_update
 
         # Build upsert rows + explicit clears
         records = []

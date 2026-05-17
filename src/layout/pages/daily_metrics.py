@@ -13,7 +13,7 @@ def create_daily_metrics_page(user_id: str) -> dbc.Container:
     page = "daily-metrics"
     selected_date = date.today().isoformat()
 
-    def input_(name: str, placeholder: str, width: str = "8.75rem") -> dbc.Input:
+    def input_(name: str, placeholder: str, width: str = "5.25rem") -> dbc.Input:
         return dbc.Input(
             id={"page": page, "name": name, "type": "input"},
             type="text",
