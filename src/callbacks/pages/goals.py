@@ -1,3 +1,6 @@
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
+
 from dash import Dash, Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
@@ -8,7 +11,41 @@ from src.layout.toasts import toast, update_toast, hide_toast
 from src.logic.pages.goals import get_goal_set_id_for_offset, ensure_goal_set_id_for_save
 
 
+def _anchor_now_for_date(selected_date: str | None, tz: str = "America/New_York") -> datetime:
+    try:
+        selected = date.fromisoformat(selected_date) if selected_date else date.today()
+    except (TypeError, ValueError):
+        selected = date.today()
+    # Midday avoids edge cases around timezone/day rollover.
+    return datetime.combine(selected, time(hour=12), tzinfo=ZoneInfo(tz))
+
+
 def register_goals_callbacks(app: Dash) -> None:
+    @app.callback(
+        Output({"page": "goals", "name": "date", "type": "date-input"}, "value"),
+        Input({"page": "goals", "name": "prev-week", "type": "button"}, "n_clicks"),
+        Input({"page": "goals", "name": "next-week", "type": "button"}, "n_clicks"),
+        State({"page": "goals", "name": "date", "type": "date-input"}, "value"),
+        prevent_initial_call=True,
+    )
+    def cycle_goals_date(_prev_clicks, _next_clicks, selected_date):
+        triggered = ctx.triggered_id
+        if not isinstance(triggered, dict):
+            raise PreventUpdate
+
+        try:
+            base_date = date.fromisoformat(selected_date) if selected_date else date.today()
+        except (TypeError, ValueError):
+            base_date = date.today()
+
+        source_name = triggered.get("name")
+        if source_name == "prev-week":
+            return (base_date - timedelta(days=7)).isoformat()
+        if source_name == "next-week":
+            return (base_date + timedelta(days=7)).isoformat()
+
+        raise PreventUpdate
+
     @app.callback(
         Output({"page": "goals", "name": "add-theme-modal", "type": "modal"}, "is_open"),
         Output({"page": "goals", "name": "new-theme-name", "type": "input"}, "value"),
@@ -103,22 +140,31 @@ def register_goals_callbacks(app: Dash) -> None:
         Output({"page": "goals", "name": "save-goals", "type": "toast"}, "children"),
         Output({"page": "goals", "name": "save-goals", "type": "toast"}, "icon"),
         Input({"page": "goals", "name": "goal-theme", "type": "dropdown"}, "value"),
+        Input({"page": "goals", "name": "date", "type": "date-input"}, "value"),
         Input({"page": "goals", "name": "update-goals", "type": "button"}, "n_clicks"),
         State("user-id", "data"),
         State("goals-last-saved-store", "data"),
         State({"page": "goals", "name": "three-month-goals", "type": "textarea"},"value"),
         State({"page": "goals", "name": "one-month-goals", "type": "textarea"},'value'),
         State({"page": "goals", "name": "this-weeks-goals", "type": "textarea"}, "value"),
-        State({"page": "goals", "name": "last-weeks-goals", "type": "textarea"}, "value"),
         prevent_initial_call=True,
     )
-    def goals_load_save(goal_theme_id, n_clicks, user_id, goals_last_saved, current_quarter_text, current_month_text,
-                        current_week_text, last_week_text):
+    def goals_load_save(
+        goal_theme_id,
+        selected_date,
+        n_clicks,
+        user_id,
+        goals_last_saved,
+        current_quarter_text,
+        current_month_text,
+        current_week_text,
+    ):
         if not user_id:
             raise PreventUpdate
 
         triggered = ctx.triggered_id
         goals_last_saved = goals_last_saved or {}
+        anchor_now_dt = _anchor_now_for_date(selected_date)
 
         # Clear if no theme selected
         if goal_theme_id is None:
@@ -127,17 +173,39 @@ def register_goals_callbacks(app: Dash) -> None:
         # -------------------------
         # LOAD (theme dropdown changed)
         # -------------------------
-        if isinstance(triggered, dict) and triggered.get("name") == "goal-theme":
-            week_goal_set_id, week_start = get_goal_set_id_for_offset(str(user_id),"WEEK",offset=0)
+        if isinstance(triggered, dict) and (
+            triggered.get("name") == "goal-theme" or triggered.get("type") == "date-input"
+        ):
+            week_goal_set_id, week_start = get_goal_set_id_for_offset(
+                str(user_id),
+                "WEEK",
+                offset=0,
+                now_dt=anchor_now_dt,
+            )
             week_text = get_goal_set_item_text(goal_set_id=week_goal_set_id, goal_theme_id=int(goal_theme_id))
 
-            last_week_goal_set_id, last_week_start = get_goal_set_id_for_offset(str(user_id),"WEEK",offset=-1)
+            last_week_goal_set_id, last_week_start = get_goal_set_id_for_offset(
+                str(user_id),
+                "WEEK",
+                offset=-1,
+                now_dt=anchor_now_dt,
+            )
             last_week_text = get_goal_set_item_text(goal_set_id=last_week_goal_set_id, goal_theme_id=int(goal_theme_id))
 
-            month_goal_set_id, month_start = get_goal_set_id_for_offset(str(user_id), "MONTH",offset=0)
+            month_goal_set_id, month_start = get_goal_set_id_for_offset(
+                str(user_id),
+                "MONTH",
+                offset=0,
+                now_dt=anchor_now_dt,
+            )
             month_text = get_goal_set_item_text(goal_set_id=month_goal_set_id, goal_theme_id=int(goal_theme_id))
 
-            quarter_goal_set_id, quarter_start = get_goal_set_id_for_offset(str(user_id), "QTR",offset=0)
+            quarter_goal_set_id, quarter_start = get_goal_set_id_for_offset(
+                str(user_id),
+                "QTR",
+                offset=0,
+                now_dt=anchor_now_dt,
+            )
             quarter_text = get_goal_set_item_text(goal_set_id=quarter_goal_set_id, goal_theme_id=int(goal_theme_id))
 
             store = {
@@ -179,7 +247,9 @@ def register_goals_callbacks(app: Dash) -> None:
             if quarter_text != saved_quarter_text:
                 save_id_qtr = ensure_goal_set_id_for_save(
                     user_id= user_id,
-                    horizon= 'QTR')
+                    horizon='QTR',
+                    now_dt=anchor_now_dt,
+                )
 
                 save_goal_set_item_text(
                     goal_set_id=int(save_id_qtr),
@@ -192,7 +262,9 @@ def register_goals_callbacks(app: Dash) -> None:
             if month_text != saved_month_text:
                 save_id_month = ensure_goal_set_id_for_save(
                     user_id=user_id,
-                    horizon='MONTH')
+                    horizon='MONTH',
+                    now_dt=anchor_now_dt,
+                )
                 save_goal_set_item_text(
                     goal_set_id=int(save_id_month),
                     goal_theme_id=int(goal_theme_id),
@@ -207,27 +279,14 @@ def register_goals_callbacks(app: Dash) -> None:
                     user_id=user_id,
                     horizon="WEEK",
                     offset=0,
+                    now_dt=anchor_now_dt,
                 )
                 save_goal_set_item_text(
                     goal_set_id=save_id_week,
                     goal_theme_id=int(goal_theme_id),
                     detail_text=week_text,
                 )
-
-            last_week_text_cur = last_week_text or ""
             saved_last_week_text = (goals_last_saved.get("week_minus_1") or {}).get("text") or ""
-            if last_week_text_cur != saved_last_week_text:
-                save_id_last_week = ensure_goal_set_id_for_save(
-                    user_id=user_id,
-                    horizon="WEEK",
-                    offset=-1,
-                )
-                save_goal_set_item_text(
-                    goal_set_id=save_id_last_week,
-                    goal_theme_id=int(goal_theme_id),
-                    detail_text=last_week_text_cur,
-                )
-
 
             # Update store baseline to what we just saved
             store = {
@@ -240,7 +299,7 @@ def register_goals_callbacks(app: Dash) -> None:
                 "week_minus_1": {
                     "horizon": "WEEK",
                     "offset": -1,
-                    "text": last_week_text_cur,
+                    "text": saved_last_week_text,
                 },
 
                 "month": {

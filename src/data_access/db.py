@@ -329,6 +329,68 @@ def update_task(task_id: int, row_dict: dict[str, Any], user_id: str) -> None:
             },
         )
 
+
+def bulk_update_tasks(
+    user_id: str,
+    task_ids: list[int],
+    updates: dict[str, Any],
+) -> int:
+    """
+    Apply partial updates to many tasks owned by a user.
+
+    Supported update keys:
+      - category_id
+      - subcategory
+      - activity
+
+    Returns the number of rows updated.
+    """
+    normalized_ids: list[int] = []
+    for raw_task_id in task_ids or []:
+        try:
+            normalized_ids.append(int(raw_task_id))
+        except (TypeError, ValueError):
+            continue
+
+    if not normalized_ids:
+        return 0
+
+    set_clauses: list[str] = []
+    params: dict[str, Any] = {
+        "user_id": user_id,
+        "task_ids": normalized_ids,
+    }
+
+    if "category_id" in updates:
+        params["category_id"] = updates.get("category_id")
+        set_clauses.append("category_id = :category_id")
+    if "subcategory" in updates:
+        params["subcategory"] = updates.get("subcategory")
+        set_clauses.append("subcategory = :subcategory")
+    if "activity" in updates:
+        params["activity"] = updates.get("activity")
+        set_clauses.append("activity = :activity")
+
+    if not set_clauses:
+        return 0
+
+    set_sql = ",\n                    ".join(set_clauses + ["updated_at = NOW()"])
+    sql = text(
+        f"""
+            UPDATE task_data
+            SET
+                    {set_sql}
+            WHERE user_id = :user_id
+              AND task_id = ANY(:task_ids)
+        """
+    )
+
+    engine = load_sql_engine()
+    with engine.begin() as conn:
+        result = conn.execute(sql, params)
+
+    return int(result.rowcount or 0)
+
 def load_task_db(task_id: int) -> dict:
     engine = load_sql_engine()
 

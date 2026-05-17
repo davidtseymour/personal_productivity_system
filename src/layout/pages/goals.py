@@ -1,17 +1,29 @@
+from datetime import date
+
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 
 from src.data_access.goals import get_goals_themes
 from src.layout.common_components import create_toast, labeled_control_row
+from src.layout.shared_components.components import date_cycler_row
 
 
 def create_goals(user_id: str) -> dbc.Container:
     page = "goals"
+    selected_date = date.today().isoformat()
 
     return dbc.Container(
         [
             dcc.Store(id="goals-last-saved-store"),
             dbc.Row(dbc.Col(html.H5("Goals"), width=12)),
+            date_cycler_row(
+                page,
+                selected_date,
+                prev_name="prev-week",
+                next_name="next-week",
+                prev_tooltip="Go to previous week",
+                next_tooltip="Go to next week",
+            ),
             dbc.Row(
                 [
                     labeled_control_row(
@@ -91,10 +103,10 @@ def create_goals(user_id: str) -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("This week's goals"),
+                            dbc.Label("Selected week's goals"),
                             dbc.Textarea(
                                 id={"page": page, "name": "this-weeks-goals", "type": "textarea"},
-                                placeholder="What are your goals for this week?",
+                                placeholder="What are your goals for the selected week?",
                                 style={"minHeight": "11.25rem"},
                             ),
                         ],
@@ -102,10 +114,16 @@ def create_goals(user_id: str) -> dbc.Container:
                     ),
                     dbc.Col(
                         [
-                            dbc.Label("Last week's goals"),
+                            dbc.Label("Previous week's goals"),
                             dbc.Textarea(
                                 id={"page": page, "name": "last-weeks-goals", "type": "textarea"},
-                                style={"minHeight": "11.25rem"},
+                                readOnly=True,
+                                style={
+                                    "minHeight": "11.25rem",
+                                    "backgroundColor": "var(--bs-body-bg)",
+                                    "borderColor": "var(--bs-border-color)",
+                                    "color": "var(--bs-secondary-color)",
+                                },
                             ),
                         ],
                         width=4,
