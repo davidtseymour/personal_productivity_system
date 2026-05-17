@@ -167,7 +167,7 @@ def create_task_inputs(
                     dcc.Dropdown(
                         id={"page": page, "group": group, "name": "task-category", "type": "dropdown"},
                         options=get_category_layout(user_id, include_all_option=False),
-                        placeholder="Select category...",
+                        placeholder="Select category",
                         value=values["category_id"],
                     ),
                     col_width=6,
@@ -183,7 +183,7 @@ def create_task_inputs(
                         dbc.Input(
                             id={"page": page, "group": group, "name": "task-subcategory", "type": "input"},
                             type="text",
-                            placeholder="Enter subcategory...",
+                            placeholder="Enter subcategory",
                             list="subcategory-suggestions",  # must be a string for HTML datalist
                             value=values["subcategory"],
                         ),
@@ -208,7 +208,7 @@ def create_task_inputs(
                     dbc.Input(
                         id={"page": page, "group": group, "name": "task-activity", "type": "input"},
                         type="text",
-                        placeholder="Enter activity...",
+                        placeholder="Enter activity",
                         value=values["activity"],
                     ),
                     col_width=6,
@@ -225,7 +225,7 @@ def create_task_inputs(
                         dbc.Label("Notes"),
                         dbc.Textarea(
                             id={"page": page, "group": group, "name": "task-notes", "type": "textarea"},
-                            placeholder="Add optional notes...",
+                            placeholder="Add optional notes",
                             rows=3,
                             value=values["notes"],
                         ),

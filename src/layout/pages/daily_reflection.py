@@ -78,10 +78,10 @@ def create_daily_reflection() -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("What didn’t work"),
+                            dbc.Label("What didn't work"),
                             dbc.Textarea(
                                 id={"page": page, "name": "what-didnt-work", "type": "textarea"},
-                                placeholder="What got in the way or didn’t go as planned?",
+                                placeholder="What got in the way or didn't go as planned?",
                             ),
                         ],
                         width=8,

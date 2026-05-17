@@ -110,7 +110,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                 dcc.Dropdown(
                                     id={"page": page, "name": "category", "type": "dropdown"},
                                     options=get_category_layout(user_id, include_all_option=True),
-                                    placeholder="Select category...",
+                                    placeholder="Select category",
                                     value="all",
                                 ),
                                 col_width=12,
@@ -122,7 +122,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                     dbc.Input(
                                         id={"page": page, "name": "subcategory", "type": "input"},
                                         type="text",
-                                        placeholder="Enter subcategory...",
+                                        placeholder="Enter subcategory",
                                         list="task-explorer-subcategory-suggestions",
                                         debounce=True,
                                     ),
@@ -139,7 +139,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                 dbc.Input(
                                     id={"page": page, "name": "activity", "type": "input"},
                                     type="text",
-                                    placeholder="Enter activity...",
+                                    placeholder="Enter activity",
                                     debounce=True,
                                 ),
                                 col_width=12,

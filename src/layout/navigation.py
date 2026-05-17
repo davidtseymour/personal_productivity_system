@@ -104,7 +104,7 @@ def create_left_navigation() -> html.Div:
                     dcc.Dropdown(
                         id={"page": "nav", "name": "users", "type": "dropdown"},
                         options=get_dcc_options(),
-                        placeholder="Select user...",
+                        placeholder="Select user",
                         value=None,  # set via callback on first load
                         className="mb-2 sidebar-dropup",
                     ),

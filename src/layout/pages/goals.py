@@ -32,7 +32,7 @@ def create_goals(user_id: str) -> dbc.Container:
                             dcc.Dropdown(
                                 id={"page": page, "name": "goal-theme", "type": "dropdown"},
                                 options=get_goals_themes(user_id),
-                                placeholder="Select goal theme...",
+                                placeholder="Select goal theme",
                                 style={"width": "100%"},
                             ),
                             style={
@@ -167,7 +167,7 @@ def create_goals(user_id: str) -> dbc.Container:
                                         dbc.Input(
                                             id={"page": page, "name": "new-theme-name", "type": "input"},
                                             type="text",
-                                            placeholder="Short label, e.g., Fitness, Career…",
+                                            placeholder="Short label, e.g., Fitness, Career",
                                             autoComplete="off",
                                             autoFocus=True,
                                         ),
