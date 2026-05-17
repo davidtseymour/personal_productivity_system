@@ -117,13 +117,14 @@ def date_controlled_row(
     *,
     date_name: str = "date",
     label_text: str = "Date",
+    label_width: str = "5.25rem",
 ) -> dbc.Col:
     return (
         labeled_fixed_width_control_row(
             label_text,
             _date_input({"page": page, "name": date_name, "type": "date-input"}, selected_date),
             control_width="8.75rem",
-            label_width="8.75rem",
+            label_width=label_width,
             className=className,
         )
     )
@@ -135,6 +136,7 @@ def date_cycler_row(
     *,
     date_name: str = "date",
     label_text: str = "Date",
+    label_width: str = "5.25rem",
     prev_name: str,
     next_name: str,
     prev_tooltip: str,
@@ -149,6 +151,7 @@ def date_cycler_row(
                 className="mb-0",
                 date_name=date_name,
                 label_text=label_text,
+                label_width=label_width,
             ),
             _date_cycler_buttons(
                 page,

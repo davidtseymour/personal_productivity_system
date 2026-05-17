@@ -46,6 +46,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                 start_date_value,
                                 date_name="start-date",
                                 label_text="Start date",
+                                label_width="7.5rem",
                                 prev_name="prev-start-day",
                                 next_name="next-start-day",
                                 prev_tooltip="Go to previous day",
@@ -57,6 +58,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                 end_date_value,
                                 date_name="end-date",
                                 label_text="End date",
+                                label_width="7.5rem",
                                 prev_name="prev-end-day",
                                 next_name="next-end-day",
                                 prev_tooltip="Go to previous day",
@@ -68,7 +70,7 @@ def create_task_explorer_page(user_id: str) -> dbc.Container:
                                     dbc.Label(
                                         "Days",
                                         className="mb-0",
-                                        style={"width": "8.75rem", "flexShrink": 0},
+                                        style={"width": "7.5rem", "flexShrink": 0},
                                     ),
                                     html.Div(
                                         [
