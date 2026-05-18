@@ -1,14 +1,14 @@
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from dash import Dash, Input, Output, State, ctx, no_update
+from dash import Dash, Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_access.goals import (
     get_or_create_goal_theme, get_goals_themes, get_goal_set_item_text, save_goal_set_item_text
 )
 from src.layout.toasts import toast, update_toast, hide_toast
-from src.logic.pages.goals import get_goal_set_id_for_offset, ensure_goal_set_id_for_save
+from src.logic.pages.goals import compute_period_start, get_goal_set_id_for_offset, ensure_goal_set_id_for_save
 
 
 def _anchor_now_for_date(selected_date: str | None, tz: str = "America/New_York") -> datetime:
@@ -20,7 +20,52 @@ def _anchor_now_for_date(selected_date: str | None, tz: str = "America/New_York"
     return datetime.combine(selected, time(hour=12), tzinfo=ZoneInfo(tz))
 
 
+def _goal_progress_labels(selected_date: str | None) -> tuple[str, str, str]:
+    anchor_now_dt = _anchor_now_for_date(selected_date)
+    selected = anchor_now_dt.date()
+
+    qtr_start = compute_period_start("QTR", offset=0, now_dt=anchor_now_dt)
+    next_qtr_start = compute_period_start("QTR", offset=1, now_dt=anchor_now_dt)
+    qtr_day = (selected - qtr_start).days + 1
+    qtr_total = (next_qtr_start - qtr_start).days
+
+    month_start = compute_period_start("MONTH", offset=0, now_dt=anchor_now_dt)
+    next_month_start = compute_period_start("MONTH", offset=1, now_dt=anchor_now_dt)
+    month_day = (selected - month_start).days + 1
+    month_total = (next_month_start - month_start).days
+
+    week_start = compute_period_start("WEEK", offset=0, now_dt=anchor_now_dt)
+    next_week_start = compute_period_start("WEEK", offset=1, now_dt=anchor_now_dt)
+    week_day = (selected - week_start).days + 1
+    week_total = (next_week_start - week_start).days
+
+    def _with_progress(label_text: str, day_index: int, day_total: int):
+        return [
+            html.Span(label_text),
+            html.Span(
+                f"day {day_index}/{day_total}",
+                className="text-muted",
+                style={"fontWeight": "400"},
+            ),
+        ]
+
+    return (
+        _with_progress("This quarter's goals", qtr_day, qtr_total),
+        _with_progress("This month's goals", month_day, month_total),
+        _with_progress("Selected week's goals", week_day, week_total),
+    )
+
+
 def register_goals_callbacks(app: Dash) -> None:
+    @app.callback(
+        Output({"page": "goals", "name": "quarter-goals-label", "type": "label"}, "children"),
+        Output({"page": "goals", "name": "month-goals-label", "type": "label"}, "children"),
+        Output({"page": "goals", "name": "week-goals-label", "type": "label"}, "children"),
+        Input({"page": "goals", "name": "date", "type": "date-input"}, "value"),
+    )
+    def update_goal_progress_labels(selected_date):
+        return _goal_progress_labels(selected_date)
+
     @app.callback(
         Output({"page": "goals", "name": "date", "type": "date-input"}, "value"),
         Input({"page": "goals", "name": "prev-week", "type": "button"}, "n_clicks"),

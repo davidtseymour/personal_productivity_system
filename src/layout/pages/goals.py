@@ -82,7 +82,11 @@ def create_goals(user_id: str) -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("This quarter's goals"),
+                            dbc.Label(
+                                "This quarter's goals",
+                                id={"page": page, "name": "quarter-goals-label", "type": "label"},
+                                className="d-flex justify-content-between align-items-baseline w-100",
+                            ),
                             dbc.Textarea(
                                 id={"page": page, "name": "three-month-goals", "type": "textarea"},
                                 placeholder="What are your goals for this quarter?",
@@ -98,7 +102,11 @@ def create_goals(user_id: str) -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("This month's goals"),
+                            dbc.Label(
+                                "This month's goals",
+                                id={"page": page, "name": "month-goals-label", "type": "label"},
+                                className="d-flex justify-content-between align-items-baseline w-100",
+                            ),
                             dbc.Textarea(
                                 id={"page": page, "name": "one-month-goals", "type": "textarea"},
                                 placeholder="What are your goals for this month?",
@@ -114,7 +122,11 @@ def create_goals(user_id: str) -> dbc.Container:
                 [
                     dbc.Col(
                         [
-                            dbc.Label("Selected week's goals"),
+                            dbc.Label(
+                                "Selected week's goals",
+                                id={"page": page, "name": "week-goals-label", "type": "label"},
+                                className="d-flex justify-content-between align-items-baseline w-100",
+                            ),
                             dbc.Textarea(
                                 id={"page": page, "name": "this-weeks-goals", "type": "textarea"},
                                 placeholder="What are your goals for the selected week?",
