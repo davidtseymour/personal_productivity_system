@@ -1,0 +1,14 @@
+.daily-summary-timeline-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.daily-summary-timeline-graph {
+    min-width: 52rem;
+}
+
+@media (max-width: 992px) {
+    .daily-summary-timeline-graph {
+        min-width: 44rem;
+    }
+}

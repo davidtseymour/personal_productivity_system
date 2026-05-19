@@ -8,6 +8,7 @@ from plotly.subplots import make_subplots
 from scipy.ndimage import gaussian_filter1d
 
 from src.data_access.db import load_daily_metrics_base_for_view_trend, load_tasks_base_for_view_trend
+from src.logic.pages.category_colors import ordered_category_color_map
 
 # -- HELPERS --
 
@@ -169,10 +170,16 @@ def plot_ts(
     ts = ts[ts["date"] != dt.date.today()]
 
     ts = ts.set_index('date')
-    ts.columns = ts.columns.map(lambda i: category_dict.get(i, i))
+    ts.columns = ts.columns.map(lambda i: str(category_dict.get(i, i)))
     ts = (ts/60).round(1)
 
     ts_roll = ts.rolling(window=roll_period, min_periods=1).mean()
+    canonical_order = [str(value).strip() for value in category_dict.values() if str(value).strip()]
+    for column_name in ts_roll.columns:
+        normalized = str(column_name).strip()
+        if normalized and normalized not in canonical_order:
+            canonical_order.append(normalized)
+    line_color_map = ordered_category_color_map(canonical_order, tint=0.0)
 
     # Apply Gaussian smoothing (if enabled)
     if do_smoothing:
@@ -186,7 +193,8 @@ def plot_ts(
             x=ts_roll.index,
             y=ts_roll[col],
             mode="lines",
-            name=col
+            name=col,
+            line=dict(color=line_color_map.get(str(col))),
         ))
 
     # Customize layout
