@@ -20,6 +20,7 @@ TOASTS = {
     "GOAL_THEME_ADDED": {"message":"Goal theme added","status":"success"},
     "GOAL_THEME_EXISTS":{"message":"Goal theme already exists","status":"info"},
     "GOALS_SAVED":{"message": "Goals saved.", "status": "success"},
+    "GOALS_SAVE_FAILED": {"message": "Could not save goals.", "status": "danger"},
 
     # GENERAL
     "VALIDATION_ERROR": {"status": "danger", "message": "Validation error"},

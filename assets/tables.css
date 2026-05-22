@@ -23,11 +23,14 @@
     border-top: 1px solid #f1f3f5;
 }
 
+.settings-minimal-table .table-row-action,
 .settings-minimal-table .settings-row-action {
     opacity: 0.5;
     transition: opacity 120ms ease-in-out;
 }
 
+.settings-minimal-table tbody tr:hover .table-row-action,
+.settings-minimal-table tbody tr:focus-within .table-row-action,
 .settings-minimal-table tbody tr:hover .settings-row-action,
 .settings-minimal-table tbody tr:focus-within .settings-row-action {
     opacity: 1;

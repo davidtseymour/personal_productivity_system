@@ -1,0 +1,14 @@
+.goals-table-region {
+    min-height: 3.5rem;
+}
+
+.goals-table-region table th,
+.goals-table-region table td {
+    vertical-align: middle;
+}
+
+.goals-table-region .form-control,
+.goals-table-region .form-select {
+    min-height: 31px;
+    font-size: 0.9rem;
+}

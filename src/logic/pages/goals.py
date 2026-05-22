@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+import os
 from typing import Literal
 from zoneinfo import ZoneInfo
 
@@ -7,6 +8,39 @@ from dateutil.relativedelta import relativedelta
 from src.data_access.goals import create_and_get_goal_set_id, get_goal_set_id
 
 GoalHorizon = Literal["WEEK", "MONTH", "QTR"]
+
+
+def get_goals_timezone() -> str:
+    """
+    Timezone used for horizon boundaries on Goals page.
+    Priority:
+      1) GOALS_TIMEZONE
+      2) APP_TIMEZONE
+      3) America/Los_Angeles
+    """
+    for key in ("GOALS_TIMEZONE", "APP_TIMEZONE"):
+        tz_name = os.getenv(key)
+        if not tz_name:
+            continue
+        try:
+            ZoneInfo(tz_name)
+            return tz_name
+        except Exception:
+            continue
+    return "America/Los_Angeles"
+
+
+def get_goals_week_start() -> int:
+    """
+    Week start for goals horizon math.
+    0=Monday, ... 6=Sunday.
+    """
+    raw = os.getenv("GOALS_WEEK_START", os.getenv("APP_WEEK_START", "0"))
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        value = 0
+    return value if 0 <= value <= 6 else 0
 
 def _start_of_week(d: date, week_start: int = 0) -> date:
     """
@@ -30,8 +64,8 @@ def _start_of_quarter(d: date) -> date:
 def compute_period_start(
     horizon: GoalHorizon,
     offset: int = 0,
-    tz: str = "America/New_York",
-    week_start: int = 0,  # Monday week start
+    tz: str | None = None,
+    week_start: int | None = None,
     now_dt: datetime | None = None,
 ) -> date:
     """
@@ -42,7 +76,10 @@ def compute_period_start(
       MONTH -> +/- N months
       QTR   -> +/- N quarters
     """
-    tzinfo = ZoneInfo(tz)
+    tz_name = tz or get_goals_timezone()
+    week_start = get_goals_week_start() if week_start is None else week_start
+
+    tzinfo = ZoneInfo(tz_name)
     local_now = (now_dt or datetime.now(tzinfo)).astimezone(tzinfo)
     today = local_now.date()
 
@@ -66,8 +103,8 @@ def get_goal_set_id_for_offset(
     user_id: str,
     horizon: GoalHorizon,
     offset: int = 0,
-    tz: str = "America/New_York",
-    week_start: int = 0,
+    tz: str | None = None,
+    week_start: int | None = None,
     now_dt: datetime | None = None,
 ) -> tuple[int | None, date]:
     """
@@ -93,8 +130,8 @@ def ensure_goal_set_id_for_save(
     user_id: str,
     horizon: GoalHorizon,
     offset: int = 0,
-    tz: str = "America/New_York",
-    week_start: int = 0,
+    tz: str | None = None,
+    week_start: int | None = None,
     now_dt: datetime | None = None,
 ) -> int:
     """

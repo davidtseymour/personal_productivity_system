@@ -8,13 +8,77 @@ from src.layout.common_components import create_toast, labeled_control_row
 from src.layout.shared_components.components import date_cycler_row, labeled_fixed_width_control_row
 
 
+def _goal_section(
+    page: str,
+    *,
+    horizon: str,
+    label_id: dict[str, str],
+    default_label: str,
+    add_tooltip: str,
+    editable: bool = True,
+) -> dbc.Row:
+    add_button_row: list = []
+    if editable:
+        add_button_id = {"page": page, "name": "add-goal-item", "type": "button", "horizon": horizon}
+        add_button_row = [
+            html.Div(
+                [
+                    dbc.Button(
+                        html.I(
+                            className="bi bi-plus-lg",
+                            style={"fontSize": "1.2rem"},
+                        ),
+                        id=add_button_id,
+                        color="light",
+                        size="sm",
+                        className="rounded-circle",
+                        style={
+                            "width": "28px",
+                            "height": "28px",
+                            "padding": "0",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                        },
+                        n_clicks=0,
+                    ),
+                    dbc.Tooltip(add_tooltip, target=add_button_id, placement="right"),
+                ],
+                className="d-flex justify-content-start",
+                style={"paddingLeft": "0.75rem", "marginTop": "0.2rem"},
+            )
+        ]
+
+    return dbc.Row(
+        [
+            dbc.Col(
+                [
+                    dbc.Label(
+                        default_label,
+                        id=label_id,
+                        className="d-flex justify-content-between align-items-baseline w-100 mb-2",
+                    ),
+                    html.Div(
+                        id={"page": page, "name": "goal-items-container", "type": "container", "horizon": horizon},
+                        className="goals-table-region",
+                    ),
+                    *add_button_row,
+                ],
+                width=12,
+            ),
+        ],
+        className="mb-3",
+    )
+
+
 def create_goals(user_id: str) -> dbc.Container:
     page = "goals"
     selected_date = date.today().isoformat()
 
     return dbc.Container(
         [
-            dcc.Store(id="goals-last-saved-store"),
+            dcc.Store(id="goals-items-store", data={}),
+            dcc.Store(id="goal-item-settings-target-store", data={}),
             dbc.Row(dbc.Col(html.H5("Goals"), width=12), className="mb-2"),
             date_cycler_row(
                 page,
@@ -28,19 +92,13 @@ def create_goals(user_id: str) -> dbc.Container:
                 [
                     labeled_fixed_width_control_row(
                         "Theme",
-                        html.Div(
-                            dcc.Dropdown(
-                                id={"page": page, "name": "goal-theme", "type": "dropdown"},
-                                options=get_goals_themes(user_id),
-                                placeholder="Select goal theme",
-                                style={"width": "100%"},
-                            ),
-                            style={
-                                "width": "calc(100% + 1.125rem)",
-                                "marginLeft": "-1.125rem",
-                            },
+                        dcc.Dropdown(
+                            id={"page": page, "name": "goal-theme", "type": "dropdown"},
+                            options=get_goals_themes(user_id),
+                            placeholder="Select goal theme",
+                            style={"width": "100%"},
                         ),
-                        control_width="11.25rem",
+                        control_width="12.375rem",
                         col_width="auto",
                         label_width="5.25rem",
                         className="mb-0",
@@ -57,8 +115,8 @@ def create_goals(user_id: str) -> dbc.Container:
                                 size="sm",
                                 className="rounded-circle",
                                 style={
-                                    "width": "32px",
-                                    "height": "32px",
+                                    "width": "28px",
+                                    "height": "28px",
                                     "padding": "0",
                                     "display": "flex",
                                     "alignItems": "center",
@@ -78,81 +136,37 @@ def create_goals(user_id: str) -> dbc.Container:
                 ],
                 className="g-2 align-items-center mb-3",
             ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label(
-                                "This quarter's goals",
-                                id={"page": page, "name": "quarter-goals-label", "type": "label"},
-                                className="d-flex justify-content-between align-items-baseline w-100",
-                            ),
-                            dbc.Textarea(
-                                id={"page": page, "name": "three-month-goals", "type": "textarea"},
-                                placeholder="What are your goals for this quarter?",
-                                style={"minHeight": "8.75rem"},
-                            ),
-                        ],
-                        width=8,
-                    ),
-                ],
-                className="mb-3",
+            _goal_section(
+                page,
+                horizon="QTR",
+                label_id={"page": page, "name": "quarter-goals-label", "type": "label"},
+                default_label="This quarter's goals",
+                add_tooltip="Add quarter goal item",
+                editable=True,
             ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label(
-                                "This month's goals",
-                                id={"page": page, "name": "month-goals-label", "type": "label"},
-                                className="d-flex justify-content-between align-items-baseline w-100",
-                            ),
-                            dbc.Textarea(
-                                id={"page": page, "name": "one-month-goals", "type": "textarea"},
-                                placeholder="What are your goals for this month?",
-                                style={"minHeight": "8.75rem"},
-                            ),
-                        ],
-                        width=8,
-                    ),
-                ],
-                className="mb-3",
+            _goal_section(
+                page,
+                horizon="MONTH",
+                label_id={"page": page, "name": "month-goals-label", "type": "label"},
+                default_label="This month's goals",
+                add_tooltip="Add month goal item",
+                editable=True,
             ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label(
-                                "Selected week's goals",
-                                id={"page": page, "name": "week-goals-label", "type": "label"},
-                                className="d-flex justify-content-between align-items-baseline w-100",
-                            ),
-                            dbc.Textarea(
-                                id={"page": page, "name": "this-weeks-goals", "type": "textarea"},
-                                placeholder="What are your goals for the selected week?",
-                                style={"minHeight": "11.25rem"},
-                            ),
-                        ],
-                        width=4,
-                    ),
-                    dbc.Col(
-                        [
-                            dbc.Label("Previous week's goals"),
-                            dbc.Textarea(
-                                id={"page": page, "name": "last-weeks-goals", "type": "textarea"},
-                                readOnly=True,
-                                style={
-                                    "minHeight": "11.25rem",
-                                    "backgroundColor": "var(--bs-body-bg)",
-                                    "borderColor": "var(--bs-border-color)",
-                                    "color": "var(--bs-secondary-color)",
-                                },
-                            ),
-                        ],
-                        width=4,
-                    ),
-                ],
-                className="mb-3",
+            _goal_section(
+                page,
+                horizon="WEEK",
+                label_id={"page": page, "name": "week-goals-label", "type": "label"},
+                default_label="Selected week's goals",
+                add_tooltip="Add week goal item",
+                editable=True,
+            ),
+            _goal_section(
+                page,
+                horizon="WEEK_MINUS_1",
+                label_id={"page": page, "name": "last-week-goals-label", "type": "label"},
+                default_label="Previous week's goals",
+                add_tooltip="",
+                editable=False,
             ),
             dbc.Row(
                 [
@@ -226,6 +240,204 @@ def create_goals(user_id: str) -> dbc.Container:
                 ],
                 id={"page": page, "name": "add-theme-modal", "type": "modal"},
                 is_open=False,
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle(id={"page": page, "name": "goal-item-settings-title", "type": "text"})),
+                    dbc.ModalBody(
+                        [
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Progress",
+                                        dbc.Select(
+                                            id={"page": page, "name": "goal-item-settings-progress-mode", "type": "input"},
+                                            options=[
+                                                {"label": "Manual", "value": "MANUAL"},
+                                                {"label": "Auto from Status", "value": "AUTO_STATUS"},
+                                                {"label": "Auto from Time", "value": "AUTO_TIME"},
+                                            ],
+                                            value="MANUAL",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Source",
+                                        dbc.Select(
+                                            id={"page": page, "name": "goal-item-settings-calc-source", "type": "input"},
+                                            options=[
+                                                {"label": "Tasks", "value": "TASKS"},
+                                                {"label": "Metrics", "value": "METRICS"},
+                                                {"label": "Tasks + Metrics", "value": "TASKS_AND_METRICS"},
+                                            ],
+                                            value="TASKS",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Standard",
+                                        dbc.Select(
+                                            id={"page": page, "name": "goal-item-settings-target-scope", "type": "input"},
+                                            options=[
+                                                {"label": "Per Period", "value": "PERIOD"},
+                                                {"label": "Per Day", "value": "DAY"},
+                                            ],
+                                            value="PERIOD",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Operator",
+                                        dbc.Select(
+                                            id={"page": page, "name": "goal-item-settings-target-operator", "type": "input"},
+                                            options=[
+                                                {"label": "At Least", "value": "GTE"},
+                                                {"label": "At Most", "value": "LTE"},
+                                            ],
+                                            value="GTE",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Target Min",
+                                        dbc.Input(
+                                            id={"page": page, "name": "goal-item-settings-target-minutes", "type": "input"},
+                                            type="number",
+                                            min=0,
+                                            step=5,
+                                            placeholder="Optional",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Category",
+                                        dbc.Select(
+                                            id={"page": page, "name": "goal-item-settings-category", "type": "input"},
+                                            options=[{"label": "Unassigned", "value": ""}],
+                                            value="",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Subcategory",
+                                        dbc.Input(
+                                            id={"page": page, "name": "goal-item-settings-subcategory", "type": "input"},
+                                            type="text",
+                                            placeholder="Optional",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Activity",
+                                        dbc.Input(
+                                            id={"page": page, "name": "goal-item-settings-activity", "type": "input"},
+                                            type="text",
+                                            placeholder="Optional",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Weight",
+                                        dbc.Input(
+                                            id={"page": page, "name": "goal-item-settings-weight", "type": "input"},
+                                            type="number",
+                                            min=0.01,
+                                            step=0.1,
+                                            value=1.0,
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    labeled_control_row(
+                                        "Notes",
+                                        dbc.Textarea(
+                                            id={"page": page, "name": "goal-item-settings-notes", "type": "input"},
+                                            rows=4,
+                                            placeholder="Optional",
+                                        ),
+                                        col_width=12,
+                                        label_width="6.875rem",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Alert(
+                                            id={"page": page, "name": "goal-item-settings-assessment", "type": "alert"},
+                                            color="secondary",
+                                            className="mt-2 mb-0 py-2",
+                                            is_open=True,
+                                        ),
+                                        width=12,
+                                    )
+                                ]
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Cancel",
+                                id={"page": page, "name": "cancel-goal-item-settings", "type": "button"},
+                                color="secondary",
+                                className="me-2",
+                            ),
+                            dbc.Button(
+                                "Save",
+                                id={"page": page, "name": "save-goal-item-settings", "type": "button"},
+                                color="primary",
+                            ),
+                        ]
+                    ),
+                ],
+                id={"page": page, "name": "goal-item-settings-modal", "type": "modal"},
+                is_open=False,
+                size="lg",
             ),
             create_toast(page, "goals", "Load Goals", icon="success"),
             create_toast(page, "save-goals", "Save Goals", icon="success"),
