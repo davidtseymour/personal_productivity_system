@@ -12,62 +12,20 @@ def _goal_section(
     page: str,
     *,
     horizon: str,
-    label_id: dict[str, str],
-    default_label: str,
-    add_tooltip: str,
-    editable: bool = True,
 ) -> dbc.Row:
-    add_button_row: list = []
-    if editable:
-        add_button_id = {"page": page, "name": "add-goal-item", "type": "button", "horizon": horizon}
-        add_button_row = [
-            html.Div(
-                [
-                    dbc.Button(
-                        html.I(
-                            className="bi bi-plus-lg",
-                            style={"fontSize": "1.2rem"},
-                        ),
-                        id=add_button_id,
-                        color="light",
-                        size="sm",
-                        className="rounded-circle",
-                        style={
-                            "width": "28px",
-                            "height": "28px",
-                            "padding": "0",
-                            "display": "flex",
-                            "alignItems": "center",
-                            "justifyContent": "center",
-                        },
-                        n_clicks=0,
-                    ),
-                    dbc.Tooltip(add_tooltip, target=add_button_id, placement="right"),
-                ],
-                className="d-flex justify-content-start",
-                style={"paddingLeft": "0.75rem", "marginTop": "0.2rem"},
-            )
-        ]
-
     return dbc.Row(
         [
             dbc.Col(
                 [
-                    dbc.Label(
-                        default_label,
-                        id=label_id,
-                        className="d-flex justify-content-between align-items-baseline w-100 mb-2",
-                    ),
                     html.Div(
                         id={"page": page, "name": "goal-items-container", "type": "container", "horizon": horizon},
                         className="goals-table-region",
                     ),
-                    *add_button_row,
                 ],
                 width=12,
             ),
         ],
-        className="mb-3",
+        className="mb-4 goals-section",
     )
 
 
@@ -139,34 +97,18 @@ def create_goals(user_id: str) -> dbc.Container:
             _goal_section(
                 page,
                 horizon="QTR",
-                label_id={"page": page, "name": "quarter-goals-label", "type": "label"},
-                default_label="This quarter's goals",
-                add_tooltip="Add quarter goal item",
-                editable=True,
             ),
             _goal_section(
                 page,
                 horizon="MONTH",
-                label_id={"page": page, "name": "month-goals-label", "type": "label"},
-                default_label="This month's goals",
-                add_tooltip="Add month goal item",
-                editable=True,
             ),
             _goal_section(
                 page,
                 horizon="WEEK",
-                label_id={"page": page, "name": "week-goals-label", "type": "label"},
-                default_label="Selected week's goals",
-                add_tooltip="Add week goal item",
-                editable=True,
             ),
             _goal_section(
                 page,
                 horizon="WEEK_MINUS_1",
-                label_id={"page": page, "name": "last-week-goals-label", "type": "label"},
-                default_label="Previous week's goals",
-                add_tooltip="",
-                editable=False,
             ),
             dbc.Row(
                 [
@@ -254,7 +196,6 @@ def create_goals(user_id: str) -> dbc.Container:
                                             id={"page": page, "name": "goal-item-settings-progress-mode", "type": "input"},
                                             options=[
                                                 {"label": "Manual", "value": "MANUAL"},
-                                                {"label": "Auto from Status", "value": "AUTO_STATUS"},
                                                 {"label": "Auto from Time", "value": "AUTO_TIME"},
                                             ],
                                             value="MANUAL",
@@ -275,7 +216,7 @@ def create_goals(user_id: str) -> dbc.Container:
                                                 {"label": "Metrics", "value": "METRICS"},
                                                 {"label": "Tasks + Metrics", "value": "TASKS_AND_METRICS"},
                                             ],
-                                            value="TASKS",
+                                            value="TASKS_AND_METRICS",
                                         ),
                                         col_width=12,
                                         label_width="6.875rem",
@@ -289,8 +230,8 @@ def create_goals(user_id: str) -> dbc.Container:
                                         dbc.Select(
                                             id={"page": page, "name": "goal-item-settings-target-scope", "type": "input"},
                                             options=[
-                                                {"label": "Per Period", "value": "PERIOD"},
                                                 {"label": "Per Day", "value": "DAY"},
+                                                {"label": "Per Period", "value": "PERIOD"},
                                             ],
                                             value="PERIOD",
                                         ),
@@ -322,9 +263,9 @@ def create_goals(user_id: str) -> dbc.Container:
                                         "Target Min",
                                         dbc.Input(
                                             id={"page": page, "name": "goal-item-settings-target-minutes", "type": "input"},
-                                            type="number",
-                                            min=0,
-                                            step=5,
+                                            type="text",
+                                            inputMode="decimal",
+                                            pattern="^\\d*(?:\\.\\d+)?$",
                                             placeholder="Optional",
                                         ),
                                         col_width=12,
@@ -380,9 +321,9 @@ def create_goals(user_id: str) -> dbc.Container:
                                         "Weight",
                                         dbc.Input(
                                             id={"page": page, "name": "goal-item-settings-weight", "type": "input"},
-                                            type="number",
-                                            min=0.01,
-                                            step=0.1,
+                                            type="text",
+                                            inputMode="decimal",
+                                            pattern="^(?:0*\\.[0-9]*[1-9][0-9]*|[1-9][0-9]*(?:\\.\\d+)?)$",
                                             value=1.0,
                                         ),
                                         col_width=12,

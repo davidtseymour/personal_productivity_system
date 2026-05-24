@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 EDITABLE_HORIZONS = ("QTR", "MONTH", "WEEK")
 ALL_HORIZONS = ("QTR", "MONTH", "WEEK", "WEEK_MINUS_1")
 HORIZON_OFFSETS = {"QTR": ("QTR", 0), "MONTH": ("MONTH", 0), "WEEK": ("WEEK", 0), "WEEK_MINUS_1": ("WEEK", -1)}
+HORIZON_GOAL_COLUMN_LABELS = {
+    "QTR": "This quarter's goals",
+    "MONTH": "This month's goals",
+    "WEEK": "Selected week's goals",
+    "WEEK_MINUS_1": "Previous week's goals",
+}
 STATUS_OPTIONS = [
     {"label": "Active", "value": "ACTIVE"},
     {"label": "Completed", "value": "COMPLETED"},
@@ -37,7 +43,6 @@ STATUS_OPTIONS = [
 STATUS_LABELS = {str(opt["value"]): str(opt["label"]) for opt in STATUS_OPTIONS}
 PROGRESS_MODE_OPTIONS = [
     {"label": "Manual", "value": "MANUAL"},
-    {"label": "Auto from Status", "value": "AUTO_STATUS"},
     {"label": "Auto from Time", "value": "AUTO_TIME"},
 ]
 CALC_SOURCE_OPTIONS = [
@@ -46,8 +51,8 @@ CALC_SOURCE_OPTIONS = [
     {"label": "Tasks + Metrics", "value": "TASKS_AND_METRICS"},
 ]
 TARGET_SCOPE_OPTIONS = [
-    {"label": "Per Period", "value": "PERIOD"},
     {"label": "Per Day", "value": "DAY"},
+    {"label": "Per Period", "value": "PERIOD"},
 ]
 TARGET_OPERATOR_OPTIONS = [
     {"label": "At Least", "value": "GTE"},
@@ -55,6 +60,9 @@ TARGET_OPERATOR_OPTIONS = [
 ]
 ROW_EDIT_FIELDS = ("title", "status", "progress_percent")
 GOALS_ACTION_COL_WIDTH = "132px"
+GOALS_STATUS_COL_WIDTH = "8rem"
+GOALS_PROGRESS_COL_WIDTH = "6.5rem"
+GOALS_TITLE_COL_MIN_WIDTH = "14rem"
 
 
 def _empty_goal_row(row_id: str) -> dict:
@@ -66,7 +74,7 @@ def _empty_goal_row(row_id: str) -> dict:
         "status": "ACTIVE",
         "progress_percent": None,
         "progress_mode": "MANUAL",
-        "calc_source": "TASKS",
+        "calc_source": "TASKS_AND_METRICS",
         "target_scope": "PERIOD",
         "target_operator": "GTE",
         "target_minutes": None,
@@ -110,6 +118,15 @@ def _ensure_store_shape(store: dict | None) -> dict:
     return base
 
 
+def _has_selected_goal_theme(goal_theme_id: object) -> bool:
+    if goal_theme_id in (None, ""):
+        return False
+    try:
+        return int(goal_theme_id) > 0
+    except (TypeError, ValueError):
+        return bool(goal_theme_id)
+
+
 def _anchor_now_for_date(selected_date: str | None, tz: str | None = None) -> datetime:
     tz_name = tz or get_goals_timezone()
     tzinfo = ZoneInfo(tz_name)
@@ -119,42 +136,6 @@ def _anchor_now_for_date(selected_date: str | None, tz: str | None = None) -> da
     except (TypeError, ValueError):
         selected = default_date
     return datetime.combine(selected, time(hour=12), tzinfo=tzinfo)
-
-
-def _goal_progress_labels(selected_date: str | None) -> tuple[str, str, str]:
-    anchor_now_dt = _anchor_now_for_date(selected_date)
-    selected = anchor_now_dt.date()
-
-    qtr_start = compute_period_start("QTR", offset=0, now_dt=anchor_now_dt)
-    next_qtr_start = compute_period_start("QTR", offset=1, now_dt=anchor_now_dt)
-    qtr_day = (selected - qtr_start).days + 1
-    qtr_total = (next_qtr_start - qtr_start).days
-
-    month_start = compute_period_start("MONTH", offset=0, now_dt=anchor_now_dt)
-    next_month_start = compute_period_start("MONTH", offset=1, now_dt=anchor_now_dt)
-    month_day = (selected - month_start).days + 1
-    month_total = (next_month_start - month_start).days
-
-    week_start = compute_period_start("WEEK", offset=0, now_dt=anchor_now_dt)
-    next_week_start = compute_period_start("WEEK", offset=1, now_dt=anchor_now_dt)
-    week_day = (selected - week_start).days + 1
-    week_total = (next_week_start - week_start).days
-
-    def _with_progress(label_text: str, day_index: int, day_total: int):
-        return [
-            html.Span(label_text),
-            html.Span(
-                f"day {day_index}/{day_total}",
-                className="text-muted",
-                style={"fontWeight": "400"},
-            ),
-        ]
-
-    return (
-        _with_progress("This quarter's goals", qtr_day, qtr_total),
-        _with_progress("This month's goals", month_day, month_total),
-        _with_progress("Selected week's goals", week_day, week_total),
-    )
 
 
 def _load_store_for_theme_and_date(user_id: str, goal_theme_id: int, anchor_now_dt: datetime) -> dict:
@@ -291,8 +272,8 @@ def _normalize_progress_mode(value: object) -> str:
 
 
 def _normalize_calc_source(value: object) -> str:
-    source = str(value or "TASKS").strip().upper()
-    return source if source in {"TASKS", "METRICS", "TASKS_AND_METRICS"} else "TASKS"
+    source = str(value or "TASKS_AND_METRICS").strip().upper()
+    return source if source in {"TASKS", "METRICS", "TASKS_AND_METRICS"} else "TASKS_AND_METRICS"
 
 
 def _normalize_target_scope(value: object) -> str:
@@ -317,6 +298,17 @@ def _effective_progress_for_display(row: dict) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _format_percent_display(value: object) -> str:
+    if value in (None, ""):
+        return ""
+    try:
+        pct = round(float(value), 1)
+        pct_text = f"{pct:.1f}".rstrip("0").rstrip(".")
+        return f"{pct_text}%"
+    except (TypeError, ValueError):
+        return ""
 
 
 def _time_goal_assessment_for_row(
@@ -626,17 +618,44 @@ def _apply_goal_item_settings(
     return shaped
 
 
-def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | html.Small:
-    if not rows:
-        return html.Small("No goal items yet. Use + to add one.", className="text-muted px-2")
+def _goal_column_heading(horizon: str) -> str:
+    return HORIZON_GOAL_COLUMN_LABELS.get(horizon, "Goals")
 
+
+def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | html.Small:
+    add_button_id = {"page": "goals", "name": "add-goal-item", "type": "button", "horizon": horizon}
     header = html.Thead(
         html.Tr(
             [
-                html.Th("Goal", style={"minWidth": "14rem"}),
-                html.Th("Status", style={"minWidth": "8rem"}),
-                html.Th("Progress", style={"minWidth": "6rem"}),
-                html.Th("Actions", style={"width": GOALS_ACTION_COL_WIDTH}, className="text-center align-middle"),
+                html.Th(
+                    _goal_column_heading(horizon),
+                    style={"minWidth": GOALS_TITLE_COL_MIN_WIDTH, "width": "auto"},
+                ),
+                html.Th(
+                    "Status",
+                    style={
+                        "width": GOALS_STATUS_COL_WIDTH,
+                        "minWidth": GOALS_STATUS_COL_WIDTH,
+                        "maxWidth": GOALS_STATUS_COL_WIDTH,
+                    },
+                ),
+                html.Th(
+                    "Progress",
+                    style={
+                        "width": GOALS_PROGRESS_COL_WIDTH,
+                        "minWidth": GOALS_PROGRESS_COL_WIDTH,
+                        "maxWidth": GOALS_PROGRESS_COL_WIDTH,
+                    },
+                ),
+                html.Th(
+                    "Actions",
+                    style={
+                        "width": GOALS_ACTION_COL_WIDTH,
+                        "minWidth": GOALS_ACTION_COL_WIDTH,
+                        "maxWidth": GOALS_ACTION_COL_WIDTH,
+                    },
+                    className="text-center align-middle",
+                ),
             ]
         )
     )
@@ -662,10 +681,14 @@ def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | h
                                 placeholder="Goal title",
                                 debounce=True,
                                 size="sm",
+                                style={"width": "100%"},
                             )
-                        )
+                        , style={"minWidth": GOALS_TITLE_COL_MIN_WIDTH})
                         if is_editing
-                        else html.Td(html.Span(str(row.get("title") or ""), className="d-inline-block py-1"))
+                        else html.Td(
+                            html.Span(str(row.get("title") or ""), className="d-inline-block py-1"),
+                            style={"minWidth": GOALS_TITLE_COL_MIN_WIDTH},
+                        )
                     ),
                     (
                         html.Td(
@@ -674,33 +697,55 @@ def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | h
                                 options=STATUS_OPTIONS,
                                 value=row.get("status") or "ACTIVE",
                                 size="sm",
+                                style={"width": "100%"},
                             )
+                        ,
+                            style={
+                                "width": GOALS_STATUS_COL_WIDTH,
+                                "minWidth": GOALS_STATUS_COL_WIDTH,
+                                "maxWidth": GOALS_STATUS_COL_WIDTH,
+                            },
                         )
                         if is_editing
-                        else html.Td(html.Span(_display_status(row.get("status")), className="d-inline-block py-1"))
+                        else html.Td(
+                            html.Span(_display_status(row.get("status")), className="d-inline-block py-1"),
+                            style={
+                                "width": GOALS_STATUS_COL_WIDTH,
+                                "minWidth": GOALS_STATUS_COL_WIDTH,
+                                "maxWidth": GOALS_STATUS_COL_WIDTH,
+                            },
+                        )
                     ),
                     (
                         html.Td(
                             dbc.Input(
                                 id={**base_id, "field": "progress_percent"},
-                                type="number",
-                                min=0,
-                                max=100,
-                                step=1,
+                                type="text",
+                                inputMode="decimal",
+                                pattern="^(100(?:\\.0+)?|[0-9]?[0-9](?:\\.\\d+)?)$",
                                 value=display_progress,
                                 size="sm",
                                 placeholder="%",
                                 disabled=progress_mode != "MANUAL",
+                                style={"width": "100%"},
                             )
-                        )
+                        , style={
+                                "width": GOALS_PROGRESS_COL_WIDTH,
+                                "minWidth": GOALS_PROGRESS_COL_WIDTH,
+                                "maxWidth": GOALS_PROGRESS_COL_WIDTH,
+                            })
                         if is_editing
                         else html.Td(
                             html.Span(
-                                ""
-                                if display_progress is None
-                                else f"{float(display_progress):g}%",
+                                _format_percent_display(display_progress),
                                 className="d-inline-block py-1",
                             )
+                            ,
+                            style={
+                                "width": GOALS_PROGRESS_COL_WIDTH,
+                                "minWidth": GOALS_PROGRESS_COL_WIDTH,
+                                "maxWidth": GOALS_PROGRESS_COL_WIDTH,
+                            },
                         )
                     ),
                     html.Td(
@@ -790,11 +835,49 @@ def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | h
                             className="d-flex justify-content-center align-items-center",
                         ),
                         className="text-center",
-                        style={"width": GOALS_ACTION_COL_WIDTH},
+                        style={
+                            "width": GOALS_ACTION_COL_WIDTH,
+                            "minWidth": GOALS_ACTION_COL_WIDTH,
+                            "maxWidth": GOALS_ACTION_COL_WIDTH,
+                        },
                     ),
                 ]
             )
         )
+
+    if not body_rows:
+        body_rows = [
+            html.Tr(
+                [
+                    html.Td(
+                        html.Small("No goal items yet.", className="text-muted"),
+                        colSpan=4,
+                        className="px-2 py-2",
+                    )
+                ]
+            )
+        ]
+
+    body_rows.append(
+        html.Tr(
+            [
+                html.Td(
+                    html.Div(
+                        dbc.Button(
+                            html.I(className="bi bi-plus-lg"),
+                            id=add_button_id,
+                            className="icon-action-btn",
+                            title="Add goal item",
+                            n_clicks=0,
+                        ),
+                        className="d-flex justify-content-start",
+                    ),
+                    colSpan=4,
+                    className="py-2 px-2",
+                )
+            ]
+        )
+    )
 
     table = dbc.Table(
         [header, html.Tbody(body_rows)],
@@ -803,29 +886,46 @@ def _render_editable_goals_table(horizon: str, rows: list[dict]) -> html.Div | h
         size="sm",
         className="settings-minimal-table mb-1 align-middle",
         responsive=True,
+        style={"width": "100%"},
     )
     return table
 
 
-def _render_readonly_goals_table(rows: list[dict]) -> html.Div | html.Small:
+def _render_readonly_goals_table(horizon: str, rows: list[dict]) -> html.Div | html.Small:
     if not rows:
         return html.Small("No goals from previous week.", className="text-muted px-2")
-
-    def _fmt_progress(value: object) -> str:
-        if value in (None, ""):
-            return ""
-        try:
-            pct = float(value)
-            return f"{pct:g}%"
-        except (TypeError, ValueError):
-            return ""
 
     header = html.Thead(
         html.Tr(
             [
-                html.Th("Goal"),
-                html.Th("Status", style={"minWidth": "7rem"}),
-                html.Th("Progress", style={"minWidth": "6rem"}),
+                html.Th(
+                    _goal_column_heading(horizon),
+                    style={"minWidth": GOALS_TITLE_COL_MIN_WIDTH, "width": "auto"},
+                ),
+                html.Th(
+                    "Status",
+                    style={
+                        "width": GOALS_STATUS_COL_WIDTH,
+                        "minWidth": GOALS_STATUS_COL_WIDTH,
+                        "maxWidth": GOALS_STATUS_COL_WIDTH,
+                    },
+                ),
+                html.Th(
+                    "Progress",
+                    style={
+                        "width": GOALS_PROGRESS_COL_WIDTH,
+                        "minWidth": GOALS_PROGRESS_COL_WIDTH,
+                        "maxWidth": GOALS_PROGRESS_COL_WIDTH,
+                    },
+                ),
+                html.Th(
+                    "",
+                    style={
+                        "width": GOALS_ACTION_COL_WIDTH,
+                        "minWidth": GOALS_ACTION_COL_WIDTH,
+                        "maxWidth": GOALS_ACTION_COL_WIDTH,
+                    },
+                ),
             ]
         )
     )
@@ -834,9 +934,34 @@ def _render_readonly_goals_table(rows: list[dict]) -> html.Div | html.Small:
         [
             html.Tr(
                 [
-                    html.Td(html.Span(str(row.get("title") or ""), className="d-inline-block py-1")),
-                    html.Td(html.Span(_display_status(row.get("status")), className="d-inline-block py-1")),
-                    html.Td(html.Span(_fmt_progress(row.get("progress_percent")), className="d-inline-block py-1")),
+                    html.Td(
+                        html.Span(str(row.get("title") or ""), className="d-inline-block py-1"),
+                        style={"minWidth": GOALS_TITLE_COL_MIN_WIDTH},
+                    ),
+                    html.Td(
+                        html.Span(_display_status(row.get("status")), className="d-inline-block py-1"),
+                        style={
+                            "width": GOALS_STATUS_COL_WIDTH,
+                            "minWidth": GOALS_STATUS_COL_WIDTH,
+                            "maxWidth": GOALS_STATUS_COL_WIDTH,
+                        },
+                    ),
+                    html.Td(
+                        html.Span(_format_percent_display(row.get("progress_percent")), className="d-inline-block py-1"),
+                        style={
+                            "width": GOALS_PROGRESS_COL_WIDTH,
+                            "minWidth": GOALS_PROGRESS_COL_WIDTH,
+                            "maxWidth": GOALS_PROGRESS_COL_WIDTH,
+                        },
+                    ),
+                    html.Td(
+                        "",
+                        style={
+                            "width": GOALS_ACTION_COL_WIDTH,
+                            "minWidth": GOALS_ACTION_COL_WIDTH,
+                            "maxWidth": GOALS_ACTION_COL_WIDTH,
+                        },
+                    ),
                 ]
             )
             for row in rows
@@ -850,20 +975,12 @@ def _render_readonly_goals_table(rows: list[dict]) -> html.Div | html.Small:
         size="sm",
         className="settings-minimal-table mb-1 align-middle",
         responsive=True,
+        style={"width": "100%"},
     )
     return table
 
 
 def register_goals_callbacks(app: Dash) -> None:
-    @app.callback(
-        Output({"page": "goals", "name": "quarter-goals-label", "type": "label"}, "children"),
-        Output({"page": "goals", "name": "month-goals-label", "type": "label"}, "children"),
-        Output({"page": "goals", "name": "week-goals-label", "type": "label"}, "children"),
-        Input({"page": "goals", "name": "date", "type": "date-input"}, "value"),
-    )
-    def update_goal_progress_labels(selected_date):
-        return _goal_progress_labels(selected_date)
-
     @app.callback(
         Output({"page": "goals", "name": "date", "type": "date-input"}, "value"),
         Input({"page": "goals", "name": "prev-week", "type": "button"}, "n_clicks"),
@@ -992,7 +1109,7 @@ def register_goals_callbacks(app: Dash) -> None:
                 {},
                 "Goal Settings",
                 "MANUAL",
-                "TASKS",
+                "TASKS_AND_METRICS",
                 "PERIOD",
                 "GTE",
                 None,
@@ -1012,7 +1129,7 @@ def register_goals_callbacks(app: Dash) -> None:
                 {},
                 "Goal Settings",
                 "MANUAL",
-                "TASKS",
+                "TASKS_AND_METRICS",
                 "PERIOD",
                 "GTE",
                 None,
@@ -1040,6 +1157,8 @@ def register_goals_callbacks(app: Dash) -> None:
             category_value = row.get("category_id")
             category_value = "" if category_value in (None, "") else str(category_value)
             progress_mode = _normalize_progress_mode(row.get("progress_mode"))
+            if progress_mode == "AUTO_STATUS":
+                progress_mode = "MANUAL"
             calc_source = _normalize_calc_source(row.get("calc_source"))
             target_scope = _normalize_target_scope(row.get("target_scope"))
             target_operator = _normalize_target_operator(row.get("target_operator"))
@@ -1116,9 +1235,7 @@ def register_goals_callbacks(app: Dash) -> None:
         Input({"page": "goals", "name": "goal-theme", "type": "dropdown"}, "value"),
         Input({"page": "goals", "name": "date", "type": "date-input"}, "value"),
         Input({"page": "goals", "name": "update-goals", "type": "button"}, "n_clicks"),
-        Input({"page": "goals", "name": "add-goal-item", "type": "button", "horizon": "QTR"}, "n_clicks"),
-        Input({"page": "goals", "name": "add-goal-item", "type": "button", "horizon": "MONTH"}, "n_clicks"),
-        Input({"page": "goals", "name": "add-goal-item", "type": "button", "horizon": "WEEK"}, "n_clicks"),
+        Input({"page": "goals", "name": "add-goal-item", "type": "button", "horizon": ALL}, "n_clicks"),
         Input({"page": "goals", "type": "goal-item-action", "name": ALL, "horizon": ALL, "row_id": ALL}, "n_clicks"),
         Input({"page": "goals", "name": "save-goal-item-settings", "type": "button"}, "n_clicks"),
         Input("user-id", "data"),
@@ -1142,9 +1259,7 @@ def register_goals_callbacks(app: Dash) -> None:
         goal_theme_id,
         selected_date,
         _n_update,
-        _n_add_qtr,
-        _n_add_month,
-        _n_add_week,
+        _n_add_goal_items,
         _n_row_actions,
         _n_save_row_settings,
         user_id,
@@ -1170,7 +1285,7 @@ def register_goals_callbacks(app: Dash) -> None:
         if not user_id:
             return _empty_store(), *hide_toast()
 
-        if goal_theme_id is None:
+        if not _has_selected_goal_theme(goal_theme_id):
             return _empty_store(), *hide_toast()
 
         anchor_now_dt = _anchor_now_for_date(selected_date)
@@ -1283,13 +1398,27 @@ def register_goals_callbacks(app: Dash) -> None:
         Input({"page": "goals", "name": "goal-theme", "type": "dropdown"}, "value"),
     )
     def render_goal_sections(store, user_id, goal_theme_id):
-        if not user_id or goal_theme_id is None:
+        if not user_id:
+            empty = html.Div()
+            return empty, empty, empty, empty
+
+        if not _has_selected_goal_theme(goal_theme_id):
             empty_msg = html.Small("Select a goal theme to view items.", className="text-muted px-2")
-            return empty_msg, empty_msg, empty_msg, empty_msg
+            empty = html.Div()
+            return empty_msg, empty, empty, empty
 
         shaped = _ensure_store_shape(store)
         quarter = _render_editable_goals_table("QTR", shaped["items"].get("QTR", []))
         month = _render_editable_goals_table("MONTH", shaped["items"].get("MONTH", []))
         week = _render_editable_goals_table("WEEK", shaped["items"].get("WEEK", []))
-        previous_week = _render_readonly_goals_table(shaped["items"].get("WEEK_MINUS_1", []))
+        previous_week = _render_readonly_goals_table("WEEK_MINUS_1", shaped["items"].get("WEEK_MINUS_1", []))
         return quarter, month, week, previous_week
+
+    @app.callback(
+        Output({"page": "goals", "name": "update-goals", "type": "button"}, "style"),
+        Input("user-id", "data"),
+        Input({"page": "goals", "name": "goal-theme", "type": "dropdown"}, "value"),
+    )
+    def toggle_update_goals_button(user_id, goal_theme_id):
+        controls_visible = bool(user_id) and _has_selected_goal_theme(goal_theme_id)
+        return {} if controls_visible else {"display": "none"}
